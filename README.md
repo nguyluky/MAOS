@@ -14,4 +14,4 @@ MCOS: Multi account one setting
 
 
 ## home
-![](https://github.com/ngluky/MAOS/blob/main/screenshot/home.png?raw=true)
+![](https://github.com/nguyluky/MAOS/blob/main/screenshot/home.png?raw=true)
