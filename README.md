@@ -13,5 +13,5 @@ MCOS: Multi account one setting
   - Check if your friend is playing or not
 
 
-## home
+## screenshort
 ![](https://github.com/nguyluky/MAOS/blob/main/screenshot/home.png?raw=true)
