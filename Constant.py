@@ -21,7 +21,7 @@ class SingletonMeta(type):
 class Constant(metaclass=SingletonMeta):
     Accounts: ListVariable[ExtraAuth] = ListVariable()
     EndPoints: ListVariable[EndPoints] = ListVariable()
-    Current_Acc: CustomVariable = CustomVariable(None)
+    Current_Acc: CustomVariable = CustomVariable(None) # return Endpoint
     Setting_Valorant: dict = {}
     Current_Acc_Setting: dict = {}
     App_Setting: CustomVariable = CustomVariable(setting)

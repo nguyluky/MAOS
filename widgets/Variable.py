@@ -36,16 +36,14 @@ class CustomVariable:
         self.callbacks = []
 
     def add_callback(self, callback):
-        if inspect.iscoroutinefunction(callback):
-            self.callbacks.append(callback)
-        else:
-            raise ValueError('callback muse be async func')
+        self.callbacks.append(callback)
 
     def _callback_call(self, mode: str, value: object):
         loop = asyncio.get_event_loop()
         for i in self.callbacks:
             func = i(mode, value)
-            loop.create_task(func)
+            if inspect.iscoroutinefunction(i):
+                loop.create_task(func)
 
     def set(self, value):
         if inspect.isfunction(value):

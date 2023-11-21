@@ -14,13 +14,11 @@ PyInstaller.__main__.run([
     '--add-data', fr"{ctk_path};customtkinter/",
     "--add-data", fr"{path}\ValLib;ValLib" ,
     
-    "--add-data", fr"{path}\fonts;.\fonts",
-    "--add-data", fr"{path}\icons;.\icons",
-    "--add-data", fr"{path}\img;.\img",
+    "--add-data", fr"{path}\assets;assets",
     
     "--workpath", fr"{path}\.buid\buid",
     "--distpath", fr"{path}\.buid",
-    "--icon", fr"{path}\icons\icon.ico",
+    "--icon", fr"{path}\assets\icons\icon.ico",
     "--name", "MAOS",
     fr"{path}\MAOS.py"
 ])

@@ -66,7 +66,7 @@ class Pvp:
 
         return PlayerMMRResponse.player_mmr_response_from_dict(resp.json())
 
-    def Match_History(self, player_UUID: UUID = None, startIndex: int = 0, endIndex: int = 20, queue=None):
+    def Match_History(self, player_UUID: UUID = None, startIndex: int = 0, endIndex: int = 20, queue=None) -> MatchHistoryResponse.MatchHistoryResponse:
         puuid = player_UUID if player_UUID is not None else self.auth.user_id
 
         url = f"https://pd.{self.shard}.a.pvp.net/match-history/v1/history/{puuid}?startIndex={startIndex}&endIndex={endIndex}"
@@ -80,6 +80,21 @@ class Pvp:
 
         return MatchHistoryResponse.match_history_response_from_dict(resp.json())
 
+    async def async_Match_History(self, player_UUID: UUID = None, startIndex: int = 0, endIndex: int = 20, queue=None) -> MatchHistoryResponse.MatchHistoryResponse:
+        puuid = player_UUID if player_UUID is not None else self.auth.user_id
+
+        url = f"https://pd.{self.shard}.a.pvp.net/match-history/v1/history/{puuid}?startIndex={startIndex}&endIndex={endIndex}"
+
+        if queue is not None:
+            url += f"& queue = {queue}"
+
+        headers = make_headers(self.auth)
+        
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, headers=headers)
+
+            return MatchHistoryResponse.match_history_response_from_dict(resp.json())
+    
     def Match_Details(self, matchID: UUID):
         url = f"https://pd.{self.shard}.a.pvp.net/match-details/v1/matches/{matchID}"
 

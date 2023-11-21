@@ -3,6 +3,7 @@ import json
 import os
 import webbrowser
 from importlib_resources import files
+import logging
 f = files("ValLib.captcha.assets")
 
 
@@ -31,8 +32,16 @@ class ServerCaptcha:
         line_iter = iter(req.rstrip().splitlines())
 
         # 1st line is head, all other can just be put into dict
-        method, dir_, http_ver = next(line_iter).split()
-
+        try:
+            method, dir_, http_ver = next(line_iter).split()
+        except StopIteration:
+            logging.error(req)
+            return {
+                'Method': None,
+                'Directory': None,
+                'HTTP': None
+            }
+        
         req_dict = {
             'Method': method,
             'Directory': "" if dir_ == "/" else dir_,

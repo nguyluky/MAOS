@@ -27,32 +27,25 @@ def to_class(c: Type[T], x: Any) -> dict:
     assert isinstance(x, c)
     return cast(Any, x).to_dict()
 
-
-class QueueID(Enum):
-    COMPETITIVE = "competitive"
-    DEATHMATCH = "deathmatch"
-    UNRATED = "unrated"
-
-
 @dataclass
 class History:
     match_id: UUID
     game_start_time: int
-    queue_id: QueueID
+    queue_id: str
 
     @staticmethod
     def from_dict(obj: Any) -> 'History':
         assert isinstance(obj, dict)
         match_id = UUID(obj.get("MatchID"))
         game_start_time = from_int(obj.get("GameStartTime"))
-        queue_id = QueueID(obj.get("QueueID"))
+        queue_id = obj.get("QueueID")
         return History(match_id, game_start_time, queue_id)
 
     def to_dict(self) -> dict:
         result: dict = {}
         result["MatchID"] = str(self.match_id)
         result["GameStartTime"] = from_int(self.game_start_time)
-        result["QueueID"] = to_enum(QueueID, self.queue_id)
+        result["QueueID"] = str(self.queue_id)
         return result
 
 

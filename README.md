@@ -1,16 +1,21 @@
 # MAOS
-python Valorant Thirdparty Launcher
+Python Valorant Third-party Launcher
 
-MCOS: Multi account one setting
+MCOS: Multi-account one setting
+
+## About
+When you have multiple accounts and share them with your friends, your accounts will become chaotic. You won't know which account is currently in use, and when you log in. You may spend a lot of time adjusting your settings. It is really annoying. So, I created this launcher to have full control over these accounts.
 
 ## Features
 - Account Switcher
 - Centralize a game setting
-  - set your setting when your play
-  - set to back when your quit game
+  - Set your settings when you play
+  - Set them back when you quit the game
 - Match history (developing)
 - Account status 
   - Check if your friend is playing or not
+- Quick access:
+  - shortcut of each account
 
 
 ## screenshort

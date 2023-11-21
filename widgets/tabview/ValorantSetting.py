@@ -29,10 +29,10 @@ class ValorantSetting(TabViewFrame):
         self.setting_view.place(x=0, y=0, relwidth=1, relheight=1)
         self.setting_view.insert('0.0', json.dumps(Constant.Setting_Valorant, indent=4))
 
-        load_img_ = CTkImage(load_img('./img/downloading-updates-d.png'),
-                            load_img('./img/downloading-updates-l.png'))
-        save_img = CTkImage(load_img('./img/save-d.png'),
-                            load_img('./img/save-l.png'))
+        load_img_ = CTkImage(load_img('./assets/img/downloading-updates-d.png'),
+                            load_img('./assets/img/downloading-updates-l.png'))
+        save_img = CTkImage(load_img('./assets/img/save-d.png'),
+                            load_img('./assets/img/save-l.png'))
 
         self.load_button = CTkButton(self, text='', height=40, width=40, image=load_img_, fg_color="#2B2B2B",
                                      bg_color="#1D1E1E", command=self.load_button_click_handel)
@@ -43,7 +43,6 @@ class ValorantSetting(TabViewFrame):
         self.frame_acc = CTkFrame(self, bg_color="#1D1E1E")
 
         # init event
-        self.popup_acc_render()
 
         self.bind('<Configure>', self.update_pos)
 
@@ -52,6 +51,7 @@ class ValorantSetting(TabViewFrame):
             self.hidden_popup()
             return
 
+        self.popup_acc_render()
         self.show_popup()
 
     def update_pos(self, configure):

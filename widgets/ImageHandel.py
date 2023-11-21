@@ -8,8 +8,10 @@ import sys
 from io import BytesIO
 from PIL import Image, ImageDraw
 
+from helper import get_path
 
-MASK_CIRCULAR = "./img/mask_circular.png"
+
+MASK_CIRCULAR = "./assets/img/mask_circular.png"
 
 cache = {}
 
@@ -47,10 +49,8 @@ def async_memoize():
 
 @memoize
 def load_img(path):
-    if getattr(sys, 'frozen', False):
-        image = Image.open(os.path.join(sys._MEIPASS, path))
-    else:
-        image = Image.open(path)
+    path = get_path(path)
+    image = Image.open(path)
     
     return image
 

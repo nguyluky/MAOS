@@ -94,7 +94,7 @@ class AddAcc(CTkFrame):
         self.configure(fg_color=self._detect_color_of_master())
         self.configure(bg_color=self.winfo_toplevel()["background"])
 
-        img = CTkImage(load_img("img/add-d.png"), load_img("img/add-l.png"), size=(40, 40))
+        img = CTkImage(load_img("./assets/img/add-d.png"), load_img("./assets/img/add-l.png"), size=(40, 40))
         button = CTkButton(self, text='', image=img, fg_color="transparent", hover=False)
         if command is not None:
             button.configure(command=command)
@@ -119,8 +119,8 @@ class AccInfor(CTkFrame):
         self.target_index = 0
 
         # init image
-        img_up = CTkImage(load_img("img/arrow-up-d.png"), load_img("img/arrow-up-l.png"))
-        img_down = CTkImage(load_img("img/arrow-down-d.png"), load_img("img/arrow-down-l.png"))
+        img_up = CTkImage(load_img("./assets/img/arrow-up-d.png"), load_img("./assets/img/arrow-up-l.png"))
+        img_down = CTkImage(load_img("./assets/img/arrow-down-d.png"), load_img("./assets/img/arrow-down-l.png"))
 
         # button change Acc
         self.button_frame = CTkFrame(self, fg_color="transparent", height=self.height, width=40)
