@@ -205,3 +205,5 @@ if __name__ == "__main__":
         add_font_file("./assets/fonts/Valorant Font.ttf")
         add_font_file("./assets/fonts/FontFont_FF.Mark.Pro.Medium.otf")
         loop.run_until_complete(MainApp().exec(loop))
+
+a = set()

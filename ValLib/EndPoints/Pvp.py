@@ -86,7 +86,7 @@ class Pvp:
         url = f"https://pd.{self.shard}.a.pvp.net/match-history/v1/history/{puuid}?startIndex={startIndex}&endIndex={endIndex}"
 
         if queue is not None:
-            url += f"& queue = {queue}"
+            url += f"&queue={queue}"
 
         headers = make_headers(self.auth)
         
@@ -94,6 +94,7 @@ class Pvp:
             resp = await client.get(url, headers=headers)
 
             return MatchHistoryResponse.match_history_response_from_dict(resp.json())
+            # return resp.json()
     
     def Match_Details(self, matchID: UUID):
         url = f"https://pd.{self.shard}.a.pvp.net/match-details/v1/matches/{matchID}"
@@ -103,6 +104,17 @@ class Pvp:
         resp = httpx.get(url, headers=headers)
 
         return resp.json()
+
+    async def async_Match_Details(self, matchID: UUID):
+        url = f"https://pd.{self.shard}.a.pvp.net/match-details/v1/matches/{matchID}"
+
+        headers = make_headers(self.auth)
+        
+        async with httpx.AsyncClient() as client:
+            
+            resp = await client.get(url, headers=headers)
+            return resp.json()
+
 
     def Name_Service(self, uuids: list):
         url = f"https://pd.{self.shard}.a.pvp.net/name-service/v2/players"
