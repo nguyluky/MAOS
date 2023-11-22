@@ -108,7 +108,7 @@ def remove_background(img: Image.Image) -> Image.Image:
 
 def open_gif_image(path) -> list[Image.Image]:
     img = []
-    with load_img(path) as im:
+    with Image.open(get_path(path)) as im:
 
         try:
             while 1:

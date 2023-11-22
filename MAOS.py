@@ -73,20 +73,10 @@ class App(CTk):
         
         # add event
         self.protocol("WM_DELETE_WINDOW", self.on_quit)
-
-    async def handel_add_cookie(self, user: User):
-        try:
-            
-            auth = await authenticate(user)
-            Constant.Accounts.append(auth)
-            Constant.EndPoints.append(EndPoints(auth))
-            self.render_("home")
-            return True
-
-        except exceptions.AuthException as err:
-            CTkMessagebox(type="Error", message=err)
-            return False
-
+        
+    def event_when_login(self):
+        self.render_('home')
+    
     def widget_update(self, *args):
         self.clear_()
         if len(Constant.Accounts) == 0:
@@ -122,11 +112,12 @@ class App(CTk):
 
     def render_login(self):
         self.login_frame_ = Login(self, fg_color="transparent", corner_radius=CORNER_RADIUS)
+        self.login_frame_.add_callback(self.event_when_login)
         self.login_frame_.place(x=0, y=0, relwidth=1, relheight=1)
 
     def render_loading_startup(self):
-        self.loading_startup = Loaing(self, type_=PROGRESS, text="loading cookie")
-
+        if self.loading_startup is None:
+            self.loading_startup = Loaing(self, type_=PROGRESS, text="loading cookie")
         self.loading_startup.place(x=0, y=0, relwidth=1, relheight=1)
 
     def on_quit(self):
