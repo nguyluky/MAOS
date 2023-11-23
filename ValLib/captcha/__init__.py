@@ -1,6 +1,7 @@
-from .ServerSolve import ServerCaptcha
+from .ServerSolve import ServerCaptcha, server_close
 
 
 __all__ = [
-    "ServerCaptcha"
+    "ServerCaptcha",
+    "server_close"
 ]

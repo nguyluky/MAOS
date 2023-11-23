@@ -1,6 +1,7 @@
 import asyncio
 import json
 import tkinter
+import logging
 
 from customtkinter import *
 
@@ -27,6 +28,8 @@ MAP_URL_2_NAME = {
     "/Game/Maps/Poveglia/Range": "The Range",
     "/Game/Maps/Triad/Triad": "Haven"
 }
+
+logger = logging.getLogger("main_app")
 
 
 class Match(CTkFrame):
@@ -94,6 +97,7 @@ class MatchHistory(TabViewFrame):
         super().__init__(master, *args, **kwargs)
 
         # setup value
+        self.is_endpoint_changed = False
         self.loop = asyncio.get_event_loop()
         self.height = 0
         self.width = 0
@@ -129,6 +133,7 @@ class MatchHistory(TabViewFrame):
         self.bind('<Configure>', self.update_pos)
 
     def current_change(self, mod, value):
+        self.is_endpoint_changed = True
         self.update_list()
 
     def update_pos(self, configure):
@@ -140,13 +145,18 @@ class MatchHistory(TabViewFrame):
         self.update_list()
 
     def update_list(self):
+        if not self.is_show:
+            return
+        
         value = self.queue_id.get()
         value = str(value).lower()
         if value == "all":
             value = None
         self.loop.create_task(self.get_match_history(value))
+        self.is_endpoint_changed = False
 
     async def get_match_history(self, queue):
+        logger.debug('get match history')
         endpoints: EndPoints = Constant.Current_Acc.get()
         data = await endpoints.Pvp.async_Match_History(None, 0, 20, queue)
 
@@ -154,7 +164,7 @@ class MatchHistory(TabViewFrame):
             endpoints, i.match_id)) for i in data.history]
 
         data_r = await asyncio.gather(*tasks)
-        
+        # logger.debug(f'match data {data_r}')
         self.clear_()
 
         self.frame_historys = [
@@ -176,7 +186,7 @@ class MatchHistory(TabViewFrame):
 
     def show(self):
         super().show()
-        if len(self.frame_historys) == 0:
+        if self.is_endpoint_changed:
             self.update_list()
         
         

@@ -10,11 +10,12 @@ from CTkToolTip import CTkToolTip
 from ValLib import exceptions, authenticate, EndPoints, User
 from asyncio.events import AbstractEventLoop
 
+from helper import *
 from Constant import Constant
+from widgets.Login import Login
+from widgets.AccountChange import AccountChange
 from widgets.Home import Home, star_game, set_to_backup_setting
 from widgets.Loading import Loaing, PROGRESS
-from widgets.Login import Login
-from helper import *
 
 run = True
 CORNER_RADIUS = 20
@@ -39,22 +40,27 @@ class App(CTk):
         self.event_value_account_change.trace('w', self.widget_update)
 
         # init value
-        self.loading_startup: Loaing = None
-        self.login_frame_: Login = None
-        self.main_home_frame: Home = None
         self.exitFlag = False
         self.loop = loop
+        self.frames = {
+            "home": Home(self, lambda: self.render_("account_change")),
+            "loading_stats": Loaing(self, type_=PROGRESS, text="loading cookie"),
+            "login": Login(self, corner_radius=CORNER_RADIUS, close_click=self.handel_button_login_close),
+            "account_change": AccountChange(self, corner_radius=CORNER_RADIUS, close_click=self.handel_button_login_close, add_click=self.handel_button_login_add)
+        }
+        
+        self.frames['login'].add_callback(self.handel_button_login_close)
 
         # loading cookie
-        self.render_loading_startup()
-        self.loading_startup.set_text("loading cookie file")
+        loading_stats = self.frames['loading_stats']
+        loading_stats.show()
+        loading_stats.set_text("loading cookie file")
         
         
         # load cooki
         logger.debug('load data')
-        task = self.loop.create_task(load_cookie_file(self.loading_startup))
+        task = self.loop.create_task(load_cookie_file(loading_stats))
         task.add_done_callback(lambda *args: self.widget_update())
-
         
         # loading valorant setting
         load_valorant_setting()
@@ -74,9 +80,12 @@ class App(CTk):
         # add event
         self.protocol("WM_DELETE_WINDOW", self.on_quit)
         
-    def event_when_login(self):
+    def handel_button_login_add(self):
+        self.render_('login')
+        
+    def handel_button_login_close(self, *args):
         self.render_('home')
-    
+        
     def widget_update(self, *args):
         self.clear_()
         if len(Constant.Accounts) == 0:
@@ -85,40 +94,16 @@ class App(CTk):
             self.render_("home")
 
     def clear_(self):
-        for widgets in self.winfo_children():
-            if isinstance(widgets, CTkToolTip):
-                continue
-            widgets.place_forget()
-            widgets.pack_forget()
+        for i in self.frames.values():
+            i.hidden()
 
     def render_(self, win=None):
         self.clear_()
         if win is None:
             return
 
-        if win == "login":
-            self.render_login()
-
-        elif win == "home":
-            self.render_home()
-
-        elif win == "loading":
-            self.render_loading_startup()
-
-    def render_home(self):
-        if self.main_home_frame is None:
-            self.main_home_frame = Home(self)
-        self.main_home_frame.show()
-
-    def render_login(self):
-        self.login_frame_ = Login(self, fg_color="transparent", corner_radius=CORNER_RADIUS)
-        self.login_frame_.add_callback(self.event_when_login)
-        self.login_frame_.place(x=0, y=0, relwidth=1, relheight=1)
-
-    def render_loading_startup(self):
-        if self.loading_startup is None:
-            self.loading_startup = Loaing(self, type_=PROGRESS, text="loading cookie")
-        self.loading_startup.place(x=0, y=0, relwidth=1, relheight=1)
+        fram = self.frames[win]
+        fram.show()
 
     def on_quit(self):
         logger.debug('quit')

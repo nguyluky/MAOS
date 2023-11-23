@@ -5,6 +5,7 @@ import pickle
 import asyncio
 import json
 import ctypes
+import httpx
 
 from ctypes import windll
 from win32com.client import Dispatch
@@ -126,3 +127,73 @@ def make_dir():
         os.mkdir(os.path.join(os.getenv('LOCALAPPDATA'), 'MAOS\\Avt'))
     except FileExistsError:
         pass
+
+async def check_account_status(account: EndPoints):
+    party_infor = await account.Party.async_Party_Player()
+    if party_infor.get("httpStatus", False):
+        return "off"
+        # self.acc_infor.set_status_current_account("off")
+    else:
+        current_game = await account.CurrentGame.async_Current_Game()
+        match_id = current_game.get("MatchID", False)
+        if match_id:
+            return "in"
+            # self.acc_infor.set_status_current_account("in")
+        else:
+            return "on"
+            # self.acc_infor.set_status_current_account("on")
+
+async def get_player_card(player_card_id) -> str:
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(f"https://valorant-api.com/v1/playercards/{player_card_id}")
+        data = resp.json()
+        return data["data"]["smallArt"]
+
+async def get_player_name(pvp: EndPoints) -> str:
+    name_data = await pvp.Pvp.async_Name_Service()
+    name_data = dict(name_data[0])
+    GameName = name_data.get('GameName', '')
+    TagLine = name_data.get('TagLine', '')
+    if GameName != '' and TagLine != '':
+        return f"{GameName}#{TagLine}"
+    return ''
+
+async def get_player_titles(player_title_id):
+    if player_title_id == "00000000-0000-0000-0000-000000000000":
+        return ""
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(f"https://valorant-api.com/v1/playertitles/{player_title_id}")
+        data = resp.json()
+        try:
+            titles = data["data"]["titleText"]
+            return titles
+        except KeyError:
+            return ''
+
+async def get_acc_infor(pvp: EndPoints):
+    # find index of auth in account list
+    index = -1
+    for i, ele in enumerate(Constant.Accounts):
+        if ele == pvp.auth:
+            index = i
+            break
+
+    data = await pvp.Pvp.async_Player_Loadout()
+    if pvp.auth.username == '':
+        name = await get_player_name(pvp)
+        Constant.Accounts[index].username = name
+
+    if pvp.auth.card_id == '':
+        player_card_id = data.identity.player_card_id
+        Constant.Accounts[index].card_id = player_card_id
+
+    if pvp.auth.title_id == '':
+        player_title_id = data.identity.player_title_id
+        Constant.Accounts[index].title_id = player_title_id
+
+    account = Constant.Accounts[index]
+
+    avt = await get_player_card(account.card_id)
+    title = await get_player_titles(account.title_id)
+    
+    return account.username, avt, title

@@ -6,6 +6,7 @@ from importlib_resources import files
 import logging
 f = files("ValLib.captcha.assets")
 
+main_server = None
 
 class ServerCaptcha:
     def __init__(self, rqdata: str, site_key: str):
@@ -117,10 +118,12 @@ class ServerCaptcha:
         await w.drain()
         w.close()
         if self.stop_:
-            self.server.close()
+            self.stop()
 
     async def server_start(self):
+        global main_server
         self.server = await asyncio.start_server(self.tcp_handler, '127.0.0.1', 80)
+        main_server = self.server
         webbrowser.open("http://localhost:80", new=2)
         async with self.server:
             try:
@@ -131,7 +134,12 @@ class ServerCaptcha:
 
     def stop(self):
         self.server.close()
+        global main_server
+        main_server = None
 
+def server_close():
+    if main_server:
+        main_server.close()
 
 if __name__ == "__main__":
     server = ServerCaptcha('', '')

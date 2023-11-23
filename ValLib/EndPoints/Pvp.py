@@ -113,7 +113,9 @@ class Pvp:
         async with httpx.AsyncClient() as client:
             
             resp = await client.get(url, headers=headers)
-            return resp.json()
+            
+        data = resp.json()
+        return data
 
 
     def Name_Service(self, uuids: list):

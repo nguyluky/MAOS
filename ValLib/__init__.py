@@ -5,7 +5,7 @@ from .version import Version
 from .Weapons import Weapons
 from .helper import get_region, get_shard, async_get_region
 from .EndPoints import EndPoints
-
+from .captcha import server_close
 __all__ = [
     "authenticate",
     "Version",
@@ -16,5 +16,6 @@ __all__ = [
     "get_shard",
     "get_region",
     "async_get_region",
-    "async_login_cookie"
+    "async_login_cookie",
+    "server_close"
 ]
