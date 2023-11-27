@@ -36,6 +36,8 @@ When you have multiple accounts and share them with your friends, your accounts 
 ## Screenshort:
 ![home](screenshot/home.png)
 
+![accout_list](screenshot/account_list.png)
+
 
 ## Acknowledgements:
  - [valorant-API](https://valorant-api.com)
