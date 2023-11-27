@@ -22,7 +22,7 @@ async def star_game(callback):
     # copy setting
     endpoint: EndPoints = Constant.Current_Acc.get()
     
-    if Constant.App_Setting.get()['Change settting game before play']:
+    if Constant.App_Setting['overwrite-setting']:
         current_acc_setting = await endpoint.Setting.async_Fetch_Preference()
         Constant.Current_Acc_Setting = current_acc_setting
 
@@ -41,8 +41,9 @@ async def star_game(callback):
     
 def _star_game_thread(command, callback, loop):
     ls_output = subprocess.Popen(command)
-    ls_output.communicate()
-    loop.create_task(callback())
+    if Constant.App_Setting['run-on-background']:
+        ls_output.communicate()
+        loop.create_task(callback())
     
 async def set_to_backup_setting():
     logger.debug('game quit')
@@ -51,7 +52,7 @@ async def set_to_backup_setting():
     logger.debug("setback to before setting")
     await asyncio.sleep(1)
     endpoint: EndPoints = Constant.Current_Acc.get()
-    if Constant.App_Setting.get()['Change settting game before play']:
+    if Constant.App_Setting["overwrite-setting"]:
         await endpoint.Setting.async_Put_Preference(Constant.Current_Acc_Setting)
 
 class Home(BaseMainFrame):
@@ -73,9 +74,7 @@ class Home(BaseMainFrame):
         # AccInfor
         self.acc_infor = AccInfor(home_frame_top, corner_radius=CORNER_RADIUS, change_account_click=change_account_button_clicked)
         self.acc_infor.grid(row=0, column=0, sticky=NSEW, padx=(10, 0), pady=10)
-        
-        # TODO đổi lúc nhấn vào đổi accout
-        # self.acc_infor.is_account_change(self.handel_event)
+
 
         # play button
         button_play_font = CTkFont("Consolas", 20, "bold")

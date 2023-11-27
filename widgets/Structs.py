@@ -1,5 +1,6 @@
 import inspect
 import asyncio
+from typing import Any
 
 
 from customtkinter import *

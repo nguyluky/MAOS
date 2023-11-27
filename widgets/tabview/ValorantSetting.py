@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 
 from asyncio.events import AbstractEventLoop
 from CTkToolTip import CTkToolTip
@@ -13,6 +14,9 @@ from widgets.Structs import TabViewFrame
 from widgets.ImageHandel import load_img
 
 
+logger = logging.getLogger("main_app")
+
+
 class ValorantSetting(TabViewFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -23,11 +27,11 @@ class ValorantSetting(TabViewFrame):
         self.popup_is_show = False
         self.height = 0
         self.width = 0
-
+        self.buttons = {}
+        
         # init layout
         self.setting_view = CTkTextbox(self, corner_radius=15)
         self.setting_view.place(x=0, y=0, relwidth=1, relheight=1)
-        self.setting_view.insert('0.0', json.dumps(Constant.Setting_Valorant, indent=4))
 
         load_img_ = CTkImage(load_img('./assets/img/downloading-updates-d.png'),
                             load_img('./assets/img/downloading-updates-l.png'))
@@ -42,9 +46,10 @@ class ValorantSetting(TabViewFrame):
         CTkToolTip(self.save_button, "save setting to default")
         self.frame_acc = CTkFrame(self, bg_color="#1D1E1E")
 
-        # init event
 
+        # init event
         self.bind('<Configure>', self.update_pos)
+
 
     def load_button_click_handel(self):
         if self.popup_is_show:
@@ -68,29 +73,36 @@ class ValorantSetting(TabViewFrame):
         self.frame_acc.place_forget()
         self.popup_is_show = False
 
-    async def click_handel(self, acc):
+    async def click_handel(self, user_name):
         for endpoint in Constant.EndPoints:
             endpoint: EndPoints
-            if acc == endpoint.auth:
+            if user_name == endpoint.auth.username:
+                logger.debug(f'get setting {endpoint.auth.username}')
                 self.setting_view.delete('0.0', 'end')
                 setting = await endpoint.Setting.async_Fetch_Preference()
                 self.setting_view.insert('0.0', json.dumps(setting, indent=4))
 
         self.hidden_popup()
 
-    def popup_acc_render(self):
+    def add_account(self, acc: ExtraAuth):
+        text = CTkButton(self.frame_acc, text=acc.username, fg_color="transparent", command=lambda: self.loop.create_task(self.click_handel(acc.username)))
+        self.buttons[acc.user_id] = text
 
+    def popup_acc_render(self):
         for i in Constant.Accounts:
-            i: ExtraAuth
-            text = CTkButton(self.frame_acc, text=i.username, fg_color="transparent",
-                             command=lambda: self.loop.create_task(self.click_handel(i)))
-            text.pack(fill=X, padx=10, pady=5)
+            if self.buttons.get(i.user_id, None) is None:
+                self.add_account(i)
+                
+        for i in self.buttons.values():
+            i.pack(fill=X, padx=10, pady=5)
 
     def save_button_click_handel(self):
         setting = self.setting_view.get('0.0', END)
-        print(setting)
+        # print(setting)
         Constant.Setting_Valorant = json.loads(setting)
         CTkMessagebox(title="Success", message="Save Complicit")
 
     def show(self):
         super().show()
+        self.setting_view.insert('0.0', json.dumps(Constant.Setting_Valorant, indent=4))
+        

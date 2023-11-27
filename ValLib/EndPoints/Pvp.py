@@ -1,10 +1,13 @@
 import httpx
 import json
+import logging
+
 from uuid import UUID
 from ..structs import Auth, ExtraAuth
 from ..helper import make_headers, get_shard, get_region
 from .structs import PlayerLoadout, PlayerMMRResponse, MatchHistoryResponse
 
+logger = logging.getLogger(__name__)
 
 class Pvp:
     def __init__(self, auth: ExtraAuth, region=None, shard=None):
@@ -113,9 +116,12 @@ class Pvp:
         async with httpx.AsyncClient() as client:
             
             resp = await client.get(url, headers=headers)
-            
-        data = resp.json()
-        return data
+        
+        try:    
+            data = resp.json()
+            return data
+        except json.decoder.JSONDecodeError:
+            logger.warning(f'can\'t loads value {resp.text} ')
 
 
     def Name_Service(self, uuids: list):

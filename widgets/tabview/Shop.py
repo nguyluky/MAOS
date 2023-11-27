@@ -62,7 +62,7 @@ class Shop(TabViewFrame):
         if not self.is_show:
             return
         
-        logger.debug(f'get shope')
+        logger.debug(f'get shope account {endpoint.auth.username}')
         data = await endpoint.Store.Storefront()
         bundle = data["FeaturedBundle"]["Bundle"]["DataAssetID"]
         skins = data["SkinsPanelLayout"]["SingleItemOffers"]
@@ -77,9 +77,6 @@ class Shop(TabViewFrame):
 
         tasks = [self.loop.create_task(get_skin(id, index)) for index, id in enumerate(skins)]
         self.is_endpoint_changed = False
-
-    def set_(self, data):
-        pass
 
     def show(self):
         super().show()

@@ -1,4 +1,4 @@
-from widgets.Variable import ListVariable, CustomVariable
+from widgets.Variable import ListVariable, CustomVariable, Setting
 from ValLib import ExtraAuth
 
 setting = {
@@ -7,6 +7,8 @@ setting = {
         "craft shortcut": False,
         "Change settting game before play": True
     }
+
+
 
 class SingletonMeta(type):
     _instances = {}
@@ -24,4 +26,4 @@ class Constant(metaclass=SingletonMeta):
     Current_Acc: CustomVariable = CustomVariable(None) # return Endpoint
     Setting_Valorant: dict = {}
     Current_Acc_Setting: dict = {}
-    App_Setting: CustomVariable = CustomVariable(setting)
+    App_Setting: Setting = Setting()

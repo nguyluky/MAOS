@@ -36,8 +36,6 @@ class Setting:
             resp = await client.get(url, headers=headers)
 
             jsonData = resp.json()
-            if "data" not in jsonData:
-                return {}
             data = zloads(jsonData["data"])
             return data
 

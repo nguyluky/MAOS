@@ -17,7 +17,8 @@ from Constant import Constant
 
 logger = logging.getLogger("main_app")
 logger.setLevel(logging.DEBUG)
-logging.basicConfig(format="%(asctime)s [%(filename)-15.15s] [%(funcName)-15.15s] [%(levelname)-5.5s]  %(message)s")
+# "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+logging.basicConfig(format="%(asctime)s [%(funcName)-20.20s] [%(levelname)-5.5s]  %(message)s")
 
 file_cookie = os.path.join(os.getenv('LOCALAPPDATA'), "MAOS\\data.d")
 game_setting = os.path.join(os.getenv('LOCALAPPDATA'), "MAOS\\setting_global.json")
@@ -54,8 +55,6 @@ async def load_cookie_file(progress=None):
     try:
         with open(file_cookie, 'rb+') as file:
             data = pickle.load(file)
-            for i in data:
-                logger.debug(i.user_id)
             logger.debug(f'load {len(data)} account')
             
             await load_cookie(data, progress)
@@ -108,7 +107,6 @@ def add_font_file(file):
 
     if font_count == 0:
         raise RuntimeError("Error while loading font.")
-
 
 def get_path(path):
     if getattr(sys, 'frozen', False):

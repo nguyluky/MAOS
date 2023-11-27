@@ -4,10 +4,8 @@ import json
 import pickle
 import tkinter.font
 
-from CTkMessagebox import CTkMessagebox
 from customtkinter import *
-from CTkToolTip import CTkToolTip
-from ValLib import exceptions, authenticate, EndPoints, User
+from ValLib import EndPoints
 from asyncio.events import AbstractEventLoop
 
 from helper import *
@@ -69,10 +67,7 @@ class App(CTk):
         try:
             with open(app_setting, 'r+') as file:
                 data = dict(json.loads(file.read()))
-                new_setting = Constant.App_Setting.get()
-                for key, value in data.items():
-                    new_setting[key] = value
-                Constant.App_Setting.set(new_setting)
+                Constant.App_Setting.from_dict(data)
                 
         except (FileNotFoundError, json.JSONDecodeError):
             pass
@@ -122,7 +117,7 @@ class App(CTk):
             setting = json.dumps(Constant.App_Setting.get())
             file.write(setting)    
         
-        if Constant.App_Setting.get()['craft shortcut']:
+        if Constant.App_Setting['craft-shortcut']:
             create_shortcut() 
         
         self.update()
