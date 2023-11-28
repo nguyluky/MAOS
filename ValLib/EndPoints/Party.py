@@ -62,4 +62,3 @@ class Party:
         async with httpx.AsyncClient() as client:
             resp = await client.get(url, headers=headers)
             return resp.json()
-

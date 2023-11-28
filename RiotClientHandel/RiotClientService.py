@@ -7,7 +7,6 @@ import yaml
 import psutil
 
 
-
 class RiotClientService:
     def __init__(self):
         pass
@@ -52,4 +51,3 @@ class RiotClientService:
     @staticmethod
     async def OnValorantGameLaunched():
         pass
-

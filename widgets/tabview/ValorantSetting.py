@@ -28,13 +28,13 @@ class ValorantSetting(TabViewFrame):
         self.height = 0
         self.width = 0
         self.buttons = {}
-        
+
         # init layout
         self.setting_view = CTkTextbox(self, corner_radius=15)
         self.setting_view.place(x=0, y=0, relwidth=1, relheight=1)
 
         load_img_ = CTkImage(load_img('./assets/img/downloading-updates-d.png'),
-                            load_img('./assets/img/downloading-updates-l.png'))
+                             load_img('./assets/img/downloading-updates-l.png'))
         save_img = CTkImage(load_img('./assets/img/save-d.png'),
                             load_img('./assets/img/save-l.png'))
 
@@ -46,10 +46,8 @@ class ValorantSetting(TabViewFrame):
         CTkToolTip(self.save_button, "save setting to default")
         self.frame_acc = CTkFrame(self, bg_color="#1D1E1E")
 
-
         # init event
         self.bind('<Configure>', self.update_pos)
-
 
     def load_button_click_handel(self):
         if self.popup_is_show:
@@ -85,14 +83,15 @@ class ValorantSetting(TabViewFrame):
         self.hidden_popup()
 
     def add_account(self, acc: ExtraAuth):
-        text = CTkButton(self.frame_acc, text=acc.username, fg_color="transparent", command=lambda: self.loop.create_task(self.click_handel(acc.username)))
+        text = CTkButton(self.frame_acc, text=acc.username, fg_color="transparent",
+                         command=lambda: self.loop.create_task(self.click_handel(acc.username)))
         self.buttons[acc.user_id] = text
 
     def popup_acc_render(self):
         for i in Constant.Accounts:
             if self.buttons.get(i.user_id, None) is None:
                 self.add_account(i)
-                
+
         for i in self.buttons.values():
             i.pack(fill=X, padx=10, pady=5)
 
@@ -104,5 +103,5 @@ class ValorantSetting(TabViewFrame):
 
     def show(self):
         super().show()
-        self.setting_view.insert('0.0', json.dumps(Constant.Setting_Valorant, indent=4))
-        
+        self.setting_view.insert('0.0', json.dumps(
+            Constant.Setting_Valorant, indent=4))

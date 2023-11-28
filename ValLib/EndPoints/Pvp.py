@@ -9,6 +9,7 @@ from .structs import PlayerLoadout, PlayerMMRResponse, MatchHistoryResponse
 
 logger = logging.getLogger(__name__)
 
+
 class Pvp:
     def __init__(self, auth: ExtraAuth, region=None, shard=None):
         self.auth = auth
@@ -92,13 +93,13 @@ class Pvp:
             url += f"&queue={queue}"
 
         headers = make_headers(self.auth)
-        
+
         async with httpx.AsyncClient() as client:
             resp = await client.get(url, headers=headers)
 
             return MatchHistoryResponse.match_history_response_from_dict(resp.json())
             # return resp.json()
-    
+
     def Match_Details(self, matchID: UUID):
         url = f"https://pd.{self.shard}.a.pvp.net/match-details/v1/matches/{matchID}"
 
@@ -112,17 +113,16 @@ class Pvp:
         url = f"https://pd.{self.shard}.a.pvp.net/match-details/v1/matches/{matchID}"
 
         headers = make_headers(self.auth)
-        
+
         async with httpx.AsyncClient() as client:
-            
+
             resp = await client.get(url, headers=headers)
-        
-        try:    
+
+        try:
             data = resp.json()
             return data
         except json.decoder.JSONDecodeError:
             logger.warning(f'can\'t loads value {resp.text} ')
-
 
     def Name_Service(self, uuids: list):
         url = f"https://pd.{self.shard}.a.pvp.net/name-service/v2/players"

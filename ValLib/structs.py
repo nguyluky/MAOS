@@ -2,6 +2,7 @@ from dataclasses import dataclass, field, is_dataclass
 from time import time
 from typing import Dict
 
+
 class classproperty(property):
     def __get__(self, cls, owner):
         return classmethod(self.fget).__get__(None, owner)()
@@ -12,7 +13,6 @@ class User:
     username: str
     password: str
     remember: bool
-
 
     def __hash__(self):
         return hash(self.username)
@@ -56,6 +56,3 @@ class ExtraAuth(Auth):
     entitlements_token: str = field(init=False)
     remember: bool = field(init=False)
     cookies: Dict[str, str] = field(init=False)
-
-
-

@@ -62,7 +62,8 @@ class TabMaster(CTkFrame):
                  hover_color=None, command=None,
                  height=50, width=50, *args, **kw):
         super().__init__(master, *args, **kw)
-        self.hover_color = hover_color if hover_color is not None else ThemeManager.theme["CTkButton"]["hover_color"]
+        self.hover_color = hover_color if hover_color is not None else ThemeManager.theme[
+            "CTkButton"]["hover_color"]
         self.width = width
         self.height = height
         self.orientation = orientation
@@ -107,9 +108,11 @@ class TabMaster(CTkFrame):
                                corner_radius=self.corner_radius)
             CTkToolTip(button, e)
         elif isinstance(e, str):
-            button = CTkButton(self, text=e, fg_color=self.bg_color, corner_radius=self.corner_radius)
+            button = CTkButton(
+                self, text=e, fg_color=self.bg_color, corner_radius=self.corner_radius)
         elif isinstance(e, CTkImage):
-            button = CTkButton(self, image=e, text='', fg_color=self.bg_color, corner_radius=self.corner_radius)
+            button = CTkButton(
+                self, image=e, text='', fg_color=self.bg_color, corner_radius=self.corner_radius)
 
         button.configure(command=lambda: self._click_handel(e))
 

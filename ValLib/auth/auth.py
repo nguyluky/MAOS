@@ -22,7 +22,8 @@ async def authenticate(user: User) -> ExtraAuth:
 
     await session.aclose()
 
-    auth = ExtraAuth('', '', '', auth=Auth(token, entitlements_token, user.remember, user_id, cookies))
+    auth = ExtraAuth('', '', '', auth=Auth(
+        token, entitlements_token, user.remember, user_id, cookies))
     return auth
 
 
@@ -34,5 +35,6 @@ async def async_login_cookie(auth: ExtraAuth) -> ExtraAuth:
     token, cookies = await async_get_auth_data(session)
     entitlements_token = await async_get_entitlement(session, token)
 
-    auth = ExtraAuth(auth.username, auth.card_id, auth.title_id, auth=Auth(token, entitlements_token, auth.remember, auth.user_id, cookies))
+    auth = ExtraAuth(auth.username, auth.card_id, auth.title_id, auth=Auth(
+        token, entitlements_token, auth.remember, auth.user_id, cookies))
     return auth

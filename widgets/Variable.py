@@ -7,7 +7,7 @@ SETTING = {
     "startup": {
         "displayName": "startup with window",
         "type": 0,
-        "value_": False ,
+        "value_": False,
         "description": None
     },
     "run-on-background": {
@@ -23,10 +23,17 @@ SETTING = {
         "description": None
     },
     "craft-shortcut": {
-        "displayName": "craft shortcut",
+        "displayName": "Quick access",
         "type": 0,
         "value_": False,
-        "description": None
+        "description": "create shortcut of each account"
+    },
+    "allows-start-menu": {
+        "displayName": "Allows start menu",
+        "type": 0,
+        "value_": False,
+        "description": "Allows create shortcut to start menu",
+        
     },
     "overwrite-setting": {
         "displayName": "overwrite setting",
@@ -36,19 +43,21 @@ SETTING = {
     }
 }
 
+
 class BaseVariable:
     def __init__(self) -> None:
         self.callbacks = []
-    
+
     def add_callback(self, callback):
         self.callbacks.append(callback)
-        
+
     def _callback_call(self, *args, **kwargs):
         loop = asyncio.get_event_loop()
         for i in self.callbacks:
             func = i(*args, **kwargs)
             if inspect.iscoroutinefunction(i):
-                loop.create_task(func)    
+                loop.create_task(func)
+
 
 class ListVariable(list, BaseVariable):
     def __init__(self, *args):
@@ -88,23 +97,23 @@ class Setting(BaseVariable):
     def __init__(self) -> None:
         super().__init__()
         self.data: dict = SETTING
-    
+
     def __getitem__(self, key):
         return self.data[key]['value_']
-    
+
     def __setitem__(self, key, value):
         self.data[key] = value
         self._callback_call()
-        
+
     def set(self, key, value):
         self.data[key]['value_'] = value
         self._callback_call()
-        
+
     def from_dict(self, value: Any):
         for key, value_ in value.items():
             self.data[key] = value_
-            
+
         self._callback_call()
-    
+
     def get(self):
         return self.data

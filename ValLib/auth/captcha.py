@@ -104,6 +104,7 @@ def login_cookies(session: Client, login_token: str):
     url = "https://auth.riotgames.com/api/v1/login-token"
     session.post(url, json=data)
 
+
 async def async_login_cookies(session: AsyncClient, login_token: str):
     data = {
         "authentication_type": "RiotAuth",

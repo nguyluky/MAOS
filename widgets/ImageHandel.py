@@ -15,6 +15,7 @@ MASK_CIRCULAR = "./assets/img/mask_circular.png"
 
 cache = {}
 
+
 def memoize(func):
     global cache
 
@@ -51,8 +52,9 @@ def async_memoize():
 def load_img(path):
     path = get_path(path)
     image = Image.open(path)
-    
+
     return image
+
 
 @memoize
 def load_img_from_url(url) -> Image.Image:
@@ -85,7 +87,8 @@ def cropping_image_mask(img: Image.Image, mask: Image.Image) -> Image.Image:
 def cropping_image_in_a_rounded_rectangle(img: Image.Image, radius=10) -> Image.Image:
     mask = Image.new("L", img.size, "black")
     draw = ImageDraw.Draw(mask)
-    draw.rounded_rectangle((0, 0, img.size[0], img.size[1]), fill="white", radius=radius)
+    draw.rounded_rectangle(
+        (0, 0, img.size[0], img.size[1]), fill="white", radius=radius)
 
     img = cropping_image_mask(img, mask)
     return img

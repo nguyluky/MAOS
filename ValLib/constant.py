@@ -2,6 +2,7 @@ import httpx
 from .exceptions import ValorantAPIError
 from .structs import classproperty
 
+
 def fetch_versions():
     r = httpx.get("https://valorant-api.com/v1/version")
     if r.is_error:
@@ -16,7 +17,6 @@ def fetch_sketchy():
         raise ValorantAPIError
     data = r.json()["data"]
     return data
-
 
 
 class Constant:

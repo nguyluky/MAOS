@@ -36,6 +36,7 @@ async def async_get_region(auth: Auth):
         region = jsonData["affinities"]["live"]
         return region
 
+
 def get_shard(region: str) -> str:
     if region in ["latam", "br", "pbe"]:
         return "na"
@@ -146,4 +147,3 @@ def get_token(uri: str) -> Token:
     timestamp = time.time() + float(expires_in)
     token = Token(access_token, token_id, timestamp)
     return token
-

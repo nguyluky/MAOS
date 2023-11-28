@@ -45,7 +45,6 @@ class CurrentGame:
 
             return resp.json()
 
-
     def Current_Game_Match(self, match_id: UUID = None):
         url = f"https://glz-{self.region}-1.{self.shard}.a.pvp.net/core-game/v1/matches/{match_id}"
 

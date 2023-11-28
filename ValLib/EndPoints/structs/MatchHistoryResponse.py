@@ -27,6 +27,7 @@ def to_class(c: Type[T], x: Any) -> dict:
     assert isinstance(x, c)
     return cast(Any, x).to_dict()
 
+
 @dataclass
 class History:
     match_id: UUID
@@ -73,7 +74,8 @@ class MatchHistoryResponse:
         result["BeginIndex"] = from_int(self.begin_index)
         result["EndIndex"] = from_int(self.end_index)
         result["Total"] = from_int(self.total)
-        result["History"] = from_list(lambda x: to_class(History, x), self.history)
+        result["History"] = from_list(
+            lambda x: to_class(History, x), self.history)
         return result
 
 

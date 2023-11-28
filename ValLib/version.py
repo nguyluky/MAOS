@@ -1,6 +1,7 @@
 from .constant import Constant
 from .structs import classproperty
 
+
 class Version:
     @classproperty
     def valorant(cls):

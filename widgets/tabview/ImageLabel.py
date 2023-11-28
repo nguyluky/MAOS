@@ -35,7 +35,8 @@ class ImageLabel(CTkFrame):
         if event is not None:
             self.label.configure(image=self.crop(event.height, event.width))
         else:
-            self.label.configure(image=self.crop(self.winfo_height(), self.winfo_width()))
+            self.label.configure(image=self.crop(
+                self.winfo_height(), self.winfo_width()))
 
     def _crop_fill_y(self, height, width):
         new_height = height
@@ -44,7 +45,8 @@ class ImageLabel(CTkFrame):
 
         if width < new_width:
             denta_width = new_width - width
-            img = img.crop((denta_width // 2, 0, denta_width // 2 + width, height))
+            img = img.crop(
+                (denta_width // 2, 0, denta_width // 2 + width, height))
 
         return CTkImage(cropping_image_in_a_rounded_rectangle(img, self._corner_radius), size=(width, height))
 
@@ -55,7 +57,8 @@ class ImageLabel(CTkFrame):
 
         if width < new_width:
             denta_width = new_width - width
-            img = img.crop((denta_width // 2, 0, denta_width // 2 + width, height))
+            img = img.crop(
+                (denta_width // 2, 0, denta_width // 2 + width, height))
 
         return CTkImage(cropping_image_in_a_rounded_rectangle(img, self._corner_radius),
                         size=(new_width, new_height))

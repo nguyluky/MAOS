@@ -39,7 +39,7 @@ class Match(CTkFrame):
                          border_width=1, *args, **kwargs)
 
         self.color = "#20FECA" if won else "#FF4557"
-        
+
         self.configure(border_color=self.color)
 
         # setup value
@@ -50,10 +50,12 @@ class Match(CTkFrame):
         self.agent.pack(side=LEFT, padx=10, pady=10)
 
         # map and type queue
-        self.frame_type_map_name = CTkFrame(self, fg_color="transparent", width=100)
+        self.frame_type_map_name = CTkFrame(
+            self, fg_color="transparent", width=100)
 
         # -- queue type --
-        self.type = CTkLabel(self.frame_type_map_name, text=type,width=100, anchor=SW, font=('Consolas', 17, "bold"))
+        self.type = CTkLabel(self.frame_type_map_name, text=type,
+                             width=100, anchor=SW, font=('Consolas', 17, "bold"))
         self.type.pack(side=TOP, expand=True, fill=BOTH, anchor=SW)
         # -- map name --
         self.map = CTkLabel(self.frame_type_map_name, text=map,
@@ -63,7 +65,8 @@ class Match(CTkFrame):
         self.frame_type_map_name.pack(side=LEFT)
 
         # score
-        self.team1 = CTkLabel(self, text=score[0], width=25, font=('Consolas', 12, "normal"), text_color="#20FECA" if won else "#FF4557")
+        self.team1 = CTkLabel(self, text=score[0], width=25, font=(
+            'Consolas', 12, "normal"), text_color="#20FECA" if won else "#FF4557")
         self.team1.pack(side=LEFT)
 
         self._ = CTkLabel(self, text=':', font=('Consolas', 12, "normal"))
@@ -77,10 +80,12 @@ class Match(CTkFrame):
         self.kda_frame = CTkFrame(self, fg_color="transparent")
         self.kda_frame.pack(side=LEFT, padx=10)
 
-        self.top = CTkLabel(self.kda_frame, text="K/D/A",width=90, anchor=SE, font=('Consolas', 12, "normal"))
+        self.top = CTkLabel(self.kda_frame, text="K/D/A",
+                            width=90, anchor=SE, font=('Consolas', 12, "normal"))
         self.top.pack(side=TOP, expand=True, fill=BOTH, anchor=SE)
 
-        self.bott = CTkLabel(self.kda_frame, text=f"{kda[0]}/{kda[1]}/{kda[2]}", width=90, anchor=NE, font=('Consolas', 12, "normal"))
+        self.bott = CTkLabel(
+            self.kda_frame, text=f"{kda[0]}/{kda[1]}/{kda[2]}", width=90, anchor=NE, font=('Consolas', 12, "normal"))
         self.bott.pack(side=TOP, expand=True, fill=BOTH, anchor=NE)
 
         # load agent image
@@ -89,7 +94,8 @@ class Match(CTkFrame):
     async def get_agent_icon(self):
         img = await async_load_img_from_url(f'https://media.valorant-api.com/agents/{self.agent_url}/displayicon.png')
         ctkimg = CTkImage(img, size=(40, 40))
-        self.agent.configure(image=ctkimg)
+        if self.winfo_exists():
+            self.agent.configure(image=ctkimg)
 
 
 class MatchHistory(TabViewFrame):
@@ -108,15 +114,16 @@ class MatchHistory(TabViewFrame):
         self.main_frame.place(x=0, y=0, relheight=1, relwidth=1)
         self.main_frame.columnconfigure(0, weight=1)
 
-        
         # loading icon
-        loading_icon = CTkFrame(self.main_frame, height=60, fg_color="transparent")
-        self.img = ImageAnimation(loading_icon , r"assets\img\Pulse-1s-200px.gif", height=50, width=50)
+        loading_icon = CTkFrame(
+            self.main_frame, height=60, fg_color="transparent")
+        self.img = ImageAnimation(
+            loading_icon, r"assets\img\Pulse-1s-200px.gif", height=50, width=50)
         self.img.place(relx=.5, rely=0.5, anchor=CENTER)
         self.text = CTkLabel(loading_icon, text='NO DATA')
         loading_icon.grid(row=0, column=0)
 
-        self.queue_id = tkinter.StringVar(self,'All')
+        self.queue_id = tkinter.StringVar(self, 'All')
         self.match_type = CTkOptionMenu(self, width=60,
                                         values=[
                                             "All",
@@ -151,7 +158,7 @@ class MatchHistory(TabViewFrame):
     def update_list(self):
         if not self.is_show:
             return
-        
+
         self.clear_()
         value = self.queue_id.get()
         value = str(value).lower()
@@ -182,15 +189,15 @@ class MatchHistory(TabViewFrame):
         self.text.place_forget()
         for i in self.frame_historys:
             i.destroy()
-        
+
         self.frame_historys.clear()
 
     def render_(self):
-        
+
         if len(self.frame_historys) == 0:
             self.img.place_forget()
             self.text.place(relx=.5, rely=0.5, anchor=CENTER)
-        
+
         for index, value in enumerate(self.frame_historys):
             value: Match
             value.grid(row=index, column=0, pady=5)
@@ -199,8 +206,6 @@ class MatchHistory(TabViewFrame):
         super().show()
         if self.is_endpoint_changed:
             self.update_list()
-        
-        
 
 
 async def get_match_data(endpoints: EndPoints, math_id):

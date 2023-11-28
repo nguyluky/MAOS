@@ -59,9 +59,12 @@ class Gun:
         skin_level_id = UUID(obj.get("SkinLevelID"))
         chroma_id = UUID(obj.get("ChromaID"))
         attachments = from_list(lambda x: x, obj.get("Attachments"))
-        charm_instance_id = from_union([lambda x: UUID(x), from_none], obj.get("CharmInstanceID"))
-        charm_id = from_union([lambda x: UUID(x), from_none], obj.get("CharmID"))
-        charm_level_id = from_union([lambda x: UUID(x), from_none], obj.get("CharmLevelID"))
+        charm_instance_id = from_union(
+            [lambda x: UUID(x), from_none], obj.get("CharmInstanceID"))
+        charm_id = from_union(
+            [lambda x: UUID(x), from_none], obj.get("CharmID"))
+        charm_level_id = from_union(
+            [lambda x: UUID(x), from_none], obj.get("CharmLevelID"))
         return Gun(id, skin_id, skin_level_id, chroma_id, attachments, charm_instance_id, charm_id, charm_level_id)
 
     def to_dict(self) -> dict:
@@ -72,11 +75,14 @@ class Gun:
         result["ChromaID"] = str(self.chroma_id)
         result["Attachments"] = from_list(lambda x: x, self.attachments)
         if self.charm_instance_id is not None:
-            result["CharmInstanceID"] = from_union([lambda x: str(x), from_none], self.charm_instance_id)
+            result["CharmInstanceID"] = from_union(
+                [lambda x: str(x), from_none], self.charm_instance_id)
         if self.charm_id is not None:
-            result["CharmID"] = from_union([lambda x: str(x), from_none], self.charm_id)
+            result["CharmID"] = from_union(
+                [lambda x: str(x), from_none], self.charm_id)
         if self.charm_level_id is not None:
-            result["CharmLevelID"] = from_union([lambda x: str(x), from_none], self.charm_level_id)
+            result["CharmLevelID"] = from_union(
+                [lambda x: str(x), from_none], self.charm_level_id)
         return result
 
 

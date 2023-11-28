@@ -8,6 +8,7 @@ f = files("ValLib.captcha.assets")
 
 main_server = None
 
+
 class ServerCaptcha:
     def __init__(self, rqdata: str, site_key: str):
         self.rqdata = rqdata
@@ -42,7 +43,7 @@ class ServerCaptcha:
                 'Directory': None,
                 'HTTP': None
             }
-        
+
         req_dict = {
             'Method': method,
             'Directory': "" if dir_ == "/" else dir_,
@@ -137,9 +138,11 @@ class ServerCaptcha:
         global main_server
         main_server = None
 
+
 def server_close():
     if main_server:
         main_server.close()
+
 
 if __name__ == "__main__":
     server = ServerCaptcha('', '')

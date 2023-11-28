@@ -39,7 +39,6 @@ class Setting:
             data = zloads(jsonData["data"])
             return data
 
-
     def Put_Preference(self, data):
         rawData = {
             "type": "Ares.PlayerSettings",
@@ -61,6 +60,3 @@ class Setting:
             resp = await client.put(url, headers=headers, json=rawData)
 
             return resp
-
-
-

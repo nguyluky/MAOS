@@ -17,6 +17,9 @@ When you have multiple accounts and share them with your friends, your accounts 
 - Quick access:
   - shortcut of each account
 
+## Install
+
+
 
 ## Running from source:
 1. Install Python >= 3.7 

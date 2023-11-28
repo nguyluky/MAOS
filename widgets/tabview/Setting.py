@@ -38,11 +38,11 @@ class Setting(TabViewFrame):
         self.render_setting()
         Constant.App_Setting.add_callback(self.setting_update)
         self.bind('<Configure>', self.update_pos)
-        
+
     def setting_update(self, **args):
         for key, value in Constant.App_Setting.get().items():
             self.setting[key].set(value["value_"])
-        
+
     def save_button_click_handel(self):
         CTkMessagebox(title="Success", message="Save Complicit")
         for key, value in self.get_setting().items():
@@ -52,7 +52,7 @@ class Setting(TabViewFrame):
         self.height = configure.height
         self.width = configure.width
         self.save_button.place(x=configure.width - 35, y=30, anchor=CENTER)
-        
+
     def render_setting(self):
         index = 0
         for key, value in Constant.App_Setting.get().items():
@@ -60,22 +60,24 @@ class Setting(TabViewFrame):
             type_ = value["type"]
             value_ = value["value_"]
             description = value["description"]
-            
+
             text = CTkLabel(self.main_frame, text=displayName, font=self.font)
             text.grid(row=index, column=1, sticky="w", ipady=5)
-            
+
             if type_ == 0:
                 ctkValue = tkinter.BooleanVar(self, 1 if value_ else 0)
-                frame = CTkSwitch(self.main_frame, text='', onvalue=1, offvalue=0, variable=ctkValue, width=50)
-            
+                frame = CTkSwitch(self.main_frame, text='', onvalue=1,
+                                  offvalue=0, variable=ctkValue, width=50)
+
             elif type_ == 1:
                 # TODO make a new class to handel entry int
                 ctkValue = tkinter.IntVar(self, value_)
-                frame = CTkEntry(self.main_frame, textvariable=ctkValue, width=50)
+                frame = CTkEntry(
+                    self.main_frame, textvariable=ctkValue, width=50)
 
             if description:
                 CTkToolTip(text, message=description)
-            
+
             frame.grid(row=index, column=3)
             self.setting[key] = ctkValue
             index += 1
@@ -92,4 +94,3 @@ class Setting(TabViewFrame):
 
     def show(self):
         super().show()
-        

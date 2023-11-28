@@ -6,86 +6,114 @@ import asyncio
 import json
 import ctypes
 import httpx
+from datetime import date
 
 from ctypes import windll
 from win32com.client import Dispatch
-
 
 from ValLib import ExtraAuth, async_login_cookie, EndPoints
 from Constant import Constant
 
 
-logger = logging.getLogger("main_app")
-logger.setLevel(logging.DEBUG)
-# "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-logging.basicConfig(format="%(asctime)s [%(funcName)-20.20s] [%(levelname)-5.5s]  %(message)s")
-
+# path init
 file_cookie = os.path.join(os.getenv('LOCALAPPDATA'), "MAOS\\data.d")
 game_setting = os.path.join(os.getenv('LOCALAPPDATA'), "MAOS\\setting_global.json")
 app_setting = os.path.join(os.getenv('LOCALAPPDATA'), "MAOS\\setting.json")
+today = date.today()
+logPath = "log"
+logName = today.strftime("%d-%m-%Y")
+
+# logging config
+logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
+
+logger = logging.getLogger("main_app")
+logger.setLevel(logging.DEBUG)
+
+fileHandler = logging.FileHandler("{0}/{1}.log".format(logPath, logName))
+fileHandler.setFormatter(logFormatter)
+fileHandler.setLevel(logging.DEBUG)
+logger.addHandler(fileHandler)
+
+consoleHandler = logging.StreamHandler()
+consoleHandler.setFormatter(logFormatter)
+fileHandler.setLevel(logging.DEBUG)
+logger.addHandler(consoleHandler)
+
+def _create_shortcut(path_shorcut, shell, endpoint: EndPoints):
+    if endpoint.username == '':
+            return
+
+    pathLink = os.path.join(path_shorcut, f"{endpoint.username}.lnk")
+    shortcut = shell.CreateShortCut(pathLink)
+
+    # command
+    if getattr(sys, 'frozen', False):
+        targer = os.path.join(os.path.dirname(sys._MEIPASS), './MAOS.exe')
+        shortcut.Targetpath = targer
+        shortcut.Arguments = f'-login={endpoint.user_id}'
+    else:
+        targer = f"{sys.executable}"
+        shortcut.Targetpath = targer
+        shortcut.Arguments = f'{__file__} -login={endpoint.user_id}'
+
+    # icon
+    shortcut.IconLocation = os.path.join(
+        os.getenv('LOCALAPPDATA'), fr'MAOS\Avt\{endpoint.user_id}.ico')
+    shortcut.save()
 
 def create_shortcut():
     logger.debug('craft shortcut')
-    desktopFolder = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop') 
+    path_shorcut_home = os.path.join(os.path.expanduser('~'), 'Desktop')
+    data = os.getenv('APPDATA')
+    path_shorcut_start = os.path.join(data, "Microsoft\\Windows\\Start Menu\\Programs\\MAOS")
+    if not os.path.exists(path_shorcut_start):
+        os.mkdir(path_shorcut_start)
     shell = Dispatch('WScript.Shell')
     for i in Constant.Accounts:
-        i: ExtraAuth
+        _create_shortcut(path_shorcut_home, shell, i)
+    
+    if Constant.App_Setting['allows-start-menu']:
         
-        if i.username == '': continue
-        
-        
-        pathLink = os.path.join(desktopFolder, f"{i.username}.lnk")
-        shortcut = shell.CreateShortCut(pathLink)
-        
-        # command
-        if getattr(sys, 'frozen', False):
-            targer = os.path.join(os.path.dirname(sys._MEIPASS), './MAOS.exe')
-            shortcut.Targetpath = targer
-            shortcut.Arguments = f'-login={i.user_id}'
-        else:
-            targer = f"{sys.executable}"
-            shortcut.Targetpath = targer
-            shortcut.Arguments = f'{__file__} -login={i.user_id}'
-            
-        # icon
-        shortcut.IconLocation = os.path.join(os.getenv('LOCALAPPDATA'), fr'MAOS\Avt\{i.user_id}.ico')
-        shortcut.save()
+        for i in Constant.Accounts:
+            _create_shortcut(path_shorcut_start, shell, i)
 
 async def load_cookie_file(progress=None):
     try:
         with open(file_cookie, 'rb+') as file:
             data = pickle.load(file)
             logger.debug(f'load {len(data)} account')
-            
+
             await load_cookie(data, progress)
     except FileNotFoundError as err:
         logger.warning(F'fail load cookie: {err}')
 
+
 async def load_cookie(auths: ExtraAuth, progress):
-        len_ = len(auths)
-        if len_ == 0:
-            return
+    len_ = len(auths)
+    if len_ == 0:
+        return
 
-        class HandelCookie:
-            def __init__(self, progress):
-                self.count = 0
-                self.loading_startup = progress
+    class HandelCookie:
+        def __init__(self, progress):
+            self.count = 0
+            self.loading_startup = progress
 
-            async def login_cookie(self, auth: ExtraAuth):
-                auth = await async_login_cookie(auth)
-                logger.debug(f'start login to {auth.username}')
-                self.count += 1
-                if self.loading_startup:
-                    self.loading_startup.setprogress(self.count / len_)
-                return auth
+        async def login_cookie(self, auth: ExtraAuth):
+            auth = await async_login_cookie(auth)
+            logger.debug(f'start login to {auth.username}')
+            self.count += 1
+            if self.loading_startup:
+                self.loading_startup.setprogress(self.count / len_)
+            return auth
 
-        loading = HandelCookie(progress)
-        
-        loop = asyncio.get_event_loop()
-        tasks = [loop.create_task(loading.login_cookie(i)) for i in auths]
-        Constant.Accounts = await asyncio.gather(*tasks)
-        for i in Constant.Accounts:
-            Constant.EndPoints.append(EndPoints(i))
+    loading = HandelCookie(progress)
+
+    loop = asyncio.get_event_loop()
+    tasks = [loop.create_task(loading.login_cookie(i)) for i in auths]
+    Constant.Accounts = await asyncio.gather(*tasks)
+    for i in Constant.Accounts:
+        Constant.EndPoints.append(EndPoints(i))
+
 
 def load_valorant_setting():
     try:
@@ -93,13 +121,14 @@ def load_valorant_setting():
             Constant.Setting_Valorant = json.loads(file.read())
     except (FileNotFoundError, json.JSONDecodeError):
         Constant.Setting_Valorant = {}
-        
+
     # logger.info(Constant.Current_Acc_Setting)
 
+
 def add_font_file(file):
-        
+
     file = get_path(file)
-    
+
     fr_private = 0x10
 
     file = ctypes.byref(ctypes.create_unicode_buffer(file))
@@ -108,23 +137,24 @@ def add_font_file(file):
     if font_count == 0:
         raise RuntimeError("Error while loading font.")
 
+
 def get_path(path):
     if getattr(sys, 'frozen', False):
         path = os.path.join(sys._MEIPASS, path)
     else:
         path = path
-        
+
     return path
 
+
 def make_dir():
-    try:
-        os.mkdir(os.path.join(os.getenv('LOCALAPPDATA'), 'MAOS'))
-    except FileExistsError:
-        pass
-    try:
-        os.mkdir(os.path.join(os.getenv('LOCALAPPDATA'), 'MAOS\\Avt'))
-    except FileExistsError:
-        pass
+    MAOS = os.path.join(os.getenv('LOCALAPPDATA'), 'MAOS')
+    avt = os.path.join(os.getenv('LOCALAPPDATA'), 'MAOS\\Avt')
+    if not os.path.exists(MAOS):
+        os.mkdir(MAOS)
+    
+    if not os.path.exists(avt):
+        os.mkdir(avt)
 
 async def check_account_status(account: EndPoints):
     party_infor = await account.Party.async_Party_Player()
@@ -141,11 +171,13 @@ async def check_account_status(account: EndPoints):
             return "on"
             # self.acc_infor.set_status_current_account("on")
 
+
 async def get_player_card(player_card_id) -> str:
     async with httpx.AsyncClient() as client:
         resp = await client.get(f"https://valorant-api.com/v1/playercards/{player_card_id}")
         data = resp.json()
         return data["data"]["smallArt"]
+
 
 async def get_player_name(pvp: EndPoints) -> str:
     name_data = await pvp.Pvp.async_Name_Service()
@@ -155,6 +187,7 @@ async def get_player_name(pvp: EndPoints) -> str:
     if GameName != '' and TagLine != '':
         return f"{GameName}#{TagLine}"
     return ''
+
 
 async def get_player_titles(player_title_id):
     if player_title_id == "00000000-0000-0000-0000-000000000000":
@@ -167,6 +200,7 @@ async def get_player_titles(player_title_id):
             return titles
         except KeyError:
             return ''
+
 
 async def get_acc_infor(pvp: EndPoints):
     # find index of auth in account list
@@ -193,5 +227,5 @@ async def get_acc_infor(pvp: EndPoints):
 
     avt = await get_player_card(account.card_id)
     title = await get_player_titles(account.title_id)
-    
+
     return account.username, avt, title

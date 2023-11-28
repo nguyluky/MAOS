@@ -12,10 +12,10 @@ PyInstaller.__main__.run([
     '--onedir',
     "--windowed",
     '--add-data', fr"{ctk_path};customtkinter/",
-    "--add-data", fr"{path}\ValLib;ValLib" ,
-    
+    "--add-data", fr"{path}\ValLib;ValLib",
+
     "--add-data", fr"{path}\assets;assets",
-    
+
     "--workpath", fr"{path}\.buid\buid",
     "--distpath", fr"{path}\.buid",
     "--icon", fr"{path}\assets\icons\icon.ico",

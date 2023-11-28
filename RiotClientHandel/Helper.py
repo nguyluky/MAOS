@@ -8,10 +8,12 @@ from win32api import *
 
 logger = logging.getLogger("main_app")
 
+
 def find_riot_client():
     clients = []
 
-    riot_install_path = os.path.join(os.getenv('ProgramData'), 'Riot Games', 'RiotClientInstalls.json')
+    riot_install_path = os.path.join(
+        os.getenv('ProgramData'), 'Riot Games', 'RiotClientInstalls.json')
 
     if not os.path.exists(riot_install_path):
         return None
