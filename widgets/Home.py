@@ -30,7 +30,7 @@ async def star_game(callback):
     # copy setting
     endpoint: EndPoints = Constant.Current_Acc.get()
 
-    if Constant.App_Setting['overwrite-setting']:
+    if Constant.App_Setting['overwrite-setting'].get():
         logger.debug('overwrite game setting')
         current_acc_setting = await endpoint.Setting.async_Fetch_Preference()
         Constant.Current_Acc_Setting = current_acc_setting

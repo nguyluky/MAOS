@@ -1,46 +1,18 @@
 import asyncio
 import inspect
 from typing import Any
+import tkinter
 
 
 SETTING = {
-    "startup": {
-        "displayName": "startup with window",
-        "type": 0,
-        "value_": False,
-        "description": None
-    },
-    "run-on-background": {
-        "displayName": "run on background",
-        "type": 0,
-        "value_": False,
-        "description": "keep launcher run when your in game"
-    },
-    "refresh-time": {
-        "displayName": "refresh time",
-        "type": 1,
-        "value_": 10,
-        "description": None
-    },
-    "craft-shortcut": {
-        "displayName": "Quick access",
-        "type": 0,
-        "value_": False,
-        "description": "create shortcut of each account"
-    },
-    "allows-start-menu": {
-        "displayName": "Allows start menu",
-        "type": 0,
-        "value_": False,
-        "description": "Allows create shortcut to start menu",
-        
-    },
-    "overwrite-setting": {
-        "displayName": "overwrite setting",
-        "type": 0,
-        "value_": False,
-        "description": "overwrite your setting in game"
-    }
+    "startup": False,
+    "run-on-background": True,
+    "refresh-time": 10,
+    "craft-shortcut": False,
+    "allows-start-menu": False,
+    "allows-desktop": False,
+    "overwrite-setting": True,
+    "backup-setting": False,
 }
 
 
@@ -94,26 +66,46 @@ class CustomVariable(BaseVariable):
 
 # TODO hoàn thành setting class
 class Setting(BaseVariable):
-    def __init__(self) -> None:
+    def __init__(self, root = None) -> None:
         super().__init__()
-        self.data: dict = SETTING
-
-    def __getitem__(self, key):
-        return self.data[key]['value_']
+        self.raw_setting: dict = SETTING
+        self.data = {}
+        
+        for key, value in self.raw_setting.items():
+            if isinstance(value, bool):
+                value = tkinter.BooleanVar(root, value)
+            elif isinstance(value, int):
+                value = tkinter.IntVar(root, value)
+            elif isinstance(value, float):
+                value = tkinter.DoubleVar(root, value)
+            elif isinstance(value, str):
+                value = tkinter.StringVar(root, value)
+                
+        
+            self.data[key] = value
+            
+                
+        
+    def __getitem__(self, key) -> tkinter.Variable:
+        return self.data[key]
 
     def __setitem__(self, key, value):
-        self.data[key] = value
+        self.data[key].set(value)
         self._callback_call()
 
     def set(self, key, value):
-        self.data[key]['value_'] = value
+        self.data[key].set(value)
         self._callback_call()
 
     def from_dict(self, value: Any):
+        
         for key, value_ in value.items():
-            self.data[key] = value_
+            self.data[key].set(value_)
 
         self._callback_call()
 
     def get(self):
-        return self.data
+        for key, value in self.data.items():
+            self.raw_setting[key] = value.get()
+            
+        return self.raw_setting

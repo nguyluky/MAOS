@@ -16,6 +16,7 @@ from widgets.AccountChange import AccountChange
 from widgets.Home import Home, star_game, set_to_backup_setting, is_game_run
 from widgets.Loading import Loaing, PROGRESS
 from widgets.ImageHandel import load_img
+from widgets.Variable import Setting
 
 run = True
 CORNER_RADIUS = 20
@@ -26,15 +27,28 @@ class App(CTk):
     def __init__(self, start_size, title, icon, loop: AbstractEventLoop) -> None:
         super().__init__()
         # init window
+        Constant.App_Setting = Setting(self)
         self.title(title)
         self.geometry(f"{start_size[0]}x{start_size[1]}")
         self.iconbitmap(icon)
         set_appearance_mode("Dark")
         set_default_color_theme("blue")
 
-        # tkinter.Variable
-        self.index_user_curr = tkinter.IntVar(self, -1)
+        # loading valorant setting
+        logger.debug("loading valorant setting")
+        load_valorant_setting()
+
+        # loading setting
+        logger.debug("loading setting")
+        try:
+            with open(app_setting, 'r+') as file:
+                data = dict(json.loads(file.read()))
+                Constant.App_Setting.from_dict(data)
+
+        except (FileNotFoundError, json.JSONDecodeError):
+            pass
         
+                
         # icon_tray
         self.icon_tray = Icon("MAOS", load_img(r'assets\icons\icon.ico'), "MAOS", Menu(
             MenuItem("open", lambda icon, item: print(item)),
@@ -43,9 +57,6 @@ class App(CTk):
             MenuItem("exit", lambda icon, item: self.on_quit()),
         ))
         self.icon_tray.run_detached()
-
-        self.event_value_account_change = tkinter.BooleanVar(self, False)
-        self.event_value_account_change.trace('w', self.widget_update)
 
         # init value
         self.exitFlag = False
@@ -69,23 +80,11 @@ class App(CTk):
         task = self.loop.create_task(load_cookie_file(loading_stats))
         task.add_done_callback(lambda *args: self.widget_update())
 
-        # loading valorant setting
-        load_valorant_setting()
-
-        # loading setting
-        try:
-            with open(app_setting, 'r+') as file:
-                data = dict(json.loads(file.read()))
-                Constant.App_Setting.from_dict(data)
-
-        except (FileNotFoundError, json.JSONDecodeError):
-            pass
-
         # add event
         self.protocol("WM_DELETE_WINDOW", self.quit_handel)
 
     def quit_handel(self):
-        if Constant.App_Setting["run-on-background"]:
+        if Constant.App_Setting["run-on-background"].get():
             self.withdraw()
         self.on_quit()
     
@@ -131,7 +130,7 @@ class App(CTk):
             setting = json.dumps(Constant.App_Setting.get())
             file.write(setting)
 
-        if Constant.App_Setting['craft-shortcut']:
+        if Constant.App_Setting['craft-shortcut'].get():
             create_shortcut()
 
         self.update()

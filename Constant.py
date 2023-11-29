@@ -18,5 +18,5 @@ class Constant(metaclass=SingletonMeta):
     Current_Acc: CustomVariable = CustomVariable(None)  # return Endpoint
     Setting_Valorant: dict = {}
     Current_Acc_Setting: dict = {}
-    App_Setting: Setting = Setting()
+    App_Setting: Setting = None
     Is_Game_Run: bool = False

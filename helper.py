@@ -72,7 +72,7 @@ def create_shortcut():
     for i in Constant.Accounts:
         _create_shortcut(path_shorcut_home, shell, i)
     
-    if Constant.App_Setting['allows-start-menu']:
+    if Constant.App_Setting['allows-start-menu'].get():
         
         for i in Constant.Accounts:
             _create_shortcut(path_shorcut_start, shell, i)

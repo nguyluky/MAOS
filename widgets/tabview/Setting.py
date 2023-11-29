@@ -26,7 +26,7 @@ class Line(CTkEntry):
 
 
 class BaseSettingItem(CTkFrame):
-    def __init__(self, master, title, des, setting_value: tkinter.Variable = None, height=50,fg_color="#333333" ,*args, **kwargs, ):
+    def __init__(self, master, title, des, height=50,fg_color="#333333" ,*args, **kwargs, ):
         super().__init__(master, fg_color=fg_color, height=height, *args, **kwargs)
         
         self.columnconfigure((0, 1, 2), weight=1)
@@ -47,8 +47,8 @@ class BaseSettingItem(CTkFrame):
             self.setting.grid(row=0, column=0, columnspan=2, padx=10, sticky=W)
 
 class SettingItemSwitch(BaseSettingItem):
-    def __init__(self, master, title, des , setting_value: tkinter.Variable = None, height=50, *args, **kwargs):
-        super().__init__(master, title , des, setting_value, height)
+    def __init__(self, master, title, des , setting_value = None, height=50, *args, **kwargs):
+        super().__init__(master, title , des, height)
 
         self.switch = CTkSwitch(
             self, width=36, onvalue=True, offvalue=False, variable=setting_value, text='')
@@ -84,7 +84,7 @@ class Dropdow(CTkFrame):
     
     async def _show(self):
         target = int(self.calculate_height())
-        for i in range(self.current_height, target , abs(self.current_height - target)//15):
+        for i in range(self.current_height, target , abs(self.current_height - target)//5):
             self.configure(height=i)
             await asyncio.sleep(0.01)
         self.current_height = target
@@ -96,7 +96,7 @@ class Dropdow(CTkFrame):
     
     async def _hide(self):
         target = 50
-        for i in range(self.current_height, target , -abs(self.current_height - target)//15):
+        for i in range(self.current_height, target , -abs(self.current_height - target)//5):
             self.configure(height=i)
             await asyncio.sleep(0.01)
 
@@ -162,8 +162,7 @@ class Setting(TabViewFrame):
 
     def save_button_click_handel(self):
         CTkMessagebox(title="Success", message="Save Complicit")
-        for key, value in self.get_setting().items():
-            Constant.App_Setting.set(key, value)
+        Constant.App_Setting.get()
 
     def update_pos(self, configure):
         self.height = configure.height
@@ -171,11 +170,11 @@ class Setting(TabViewFrame):
         self.save_button.place(x=configure.width - 35, y=30, anchor=CENTER)
 
     def render_setting(self):
-        run_with_window = SettingItemSwitch(self.main_frame, "startup with window", None)
+        run_with_window = SettingItemSwitch(self.main_frame, "startup with window", None, Constant.App_Setting['startup'])
         run_with_window.grid(row=0, column=1, sticky=NSEW, pady=2)
 
-        # 
-        run_on_background = SettingItemSwitch(self.main_frame, "run on background", "Keep launcher run when your in game")
+        #  
+        run_on_background = SettingItemSwitch(self.main_frame, "run on background", "Keep launcher run when your in game", Constant.App_Setting['run-on-background'])
         run_on_background.grid(row=1, column=1, sticky=NSEW, pady=2)
  
  
@@ -183,28 +182,17 @@ class Setting(TabViewFrame):
         quick_access = Dropdow(self.main_frame, "Quick access", None)
         quick_access.grid(row=2, column=1, sticky=NSEW, pady=2)
         
-        quick_access.add_item(SettingItemSwitch(quick_access, "Quick access", "Create shortcut of each account"))
-        quick_access.add_item(SettingItemSwitch(quick_access, "Allows start menu", "Allows create shortcut to start menu"))
-        quick_access.add_item(SettingItemSwitch(quick_access, "Allows desktop", "Allows create shortcut to desktop"))
+        quick_access.add_item(SettingItemSwitch(quick_access, "Quick access", "Create shortcut of each account", Constant.App_Setting['craft-shortcut']))
+        quick_access.add_item(SettingItemSwitch(quick_access, "Allows start menu", "Allows create shortcut to start menu", Constant.App_Setting['allows-start-menu']))
+        quick_access.add_item(SettingItemSwitch(quick_access, "Allows desktop", "Allows create shortcut to desktop", Constant.App_Setting['allows-desktop']))
         
         
         #    
         overwrite_setting = Dropdow(self.main_frame, "Quick access", None)
         overwrite_setting.grid(row=3, column=1, sticky=NSEW, pady=2)
         
-        overwrite_setting.add_item(SettingItemSwitch(overwrite_setting, "overwrite setting", "overwrite your setting in game"))
-        overwrite_setting.add_item(SettingItemSwitch(overwrite_setting, "backup setting", "set back setting, requires run on background"))
-                
- 
-    def get_setting(self):
-        setting = {}
-        de = Constant.App_Setting.get()
-        for key, value in self.setting.items():
-            if isinstance(de[key], bool):
-                setting[key] = value.get()
-            else:
-                setting[key] = value.get()
-        return setting
+        overwrite_setting.add_item(SettingItemSwitch(overwrite_setting, "overwrite setting", "overwrite your setting in game", Constant.App_Setting['overwrite-setting']))
+        overwrite_setting.add_item(SettingItemSwitch(overwrite_setting, "backup setting", "set back setting, requires run on background", Constant.App_Setting['backup-setting']))
 
     def show(self):
         super().show()

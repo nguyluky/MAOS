@@ -69,7 +69,7 @@ class AccInfor(CTkFrame):
                                         command=change_account_click, hover=False, fg_color="transparent")
 
         self.bind('<Configure>', self.update_pos)
-        self.after(Constant.App_Setting['refresh-time'],
+        self.after(Constant.App_Setting['refresh-time'].get(),
                    lambda *args: self.loop.create_task(self.update_status()))
 
     async def update_status(self):
@@ -77,7 +77,7 @@ class AccInfor(CTkFrame):
         if acc:
             status = await check_account_status(acc)
             self.acc_status.set_status(status)
-        self.after(Constant.App_Setting['refresh-time'] * 1000,
+        self.after(Constant.App_Setting['refresh-time'].get() * 1000,
                    lambda *args: self.loop.create_task(self.update_status()))
 
     def update_pos(self, configure):
