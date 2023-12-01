@@ -28,7 +28,7 @@ class AccStatus(CTkFrame):
         label3.pack(side=LEFT, expand=True, fill='x')
 
     def _online_wiget(self):
-        status = CTkLabel(self, text="ONLINE",
+        status = CTkLabel(self, text="ONLINE", # TODO 
                           font=self.font_status, text_color="#20FECA")
         status.pack(expand=True, fill='both')
 

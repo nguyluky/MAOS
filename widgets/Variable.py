@@ -13,6 +13,8 @@ SETTING = {
     "allows-desktop": False,
     "overwrite-setting": True,
     "backup-setting": False,
+    "language": "eng",
+    "version": "1.0.2"
 }
 
 
@@ -63,8 +65,6 @@ class CustomVariable(BaseVariable):
     def get(self):
         return self.value
 
-
-# TODO hoàn thành setting class
 class Setting(BaseVariable):
     def __init__(self, root = None) -> None:
         super().__init__()

@@ -20,3 +20,4 @@ class Constant(metaclass=SingletonMeta):
     Current_Acc_Setting: dict = {}
     App_Setting: Setting = None
     Is_Game_Run: bool = False
+    Language: dict[str, str] = {}

@@ -34,7 +34,7 @@ logger = logging.getLogger("main_app")
 
 
 class Match(CTkFrame):
-    def __init__(self, master, map, kda, score, type, won, agent, *args, **kwargs):
+    def __init__(self, master, map_, kda, score, type_, won, agent, *args, **kwargs):
         super().__init__(master, height=60, border_color="#696969",
                          border_width=1, *args, **kwargs)
 
@@ -54,11 +54,11 @@ class Match(CTkFrame):
             self, fg_color="transparent", width=100)
 
         # -- queue type --
-        self.type = CTkLabel(self.frame_type_map_name, text=type,
+        self.type = CTkLabel(self.frame_type_map_name, text=type_,
                              width=100, anchor=SW, font=('Consolas', 17, "bold"))
         self.type.pack(side=TOP, expand=True, fill=BOTH, anchor=SW)
         # -- map name --
-        self.map = CTkLabel(self.frame_type_map_name, text=map,
+        self.map = CTkLabel(self.frame_type_map_name, text=map_,
                             width=100, anchor=NW, font=('Consolas', 12, "normal"))
         self.map.pack(side=TOP, expand=True, fill=BOTH, anchor=NW)
 

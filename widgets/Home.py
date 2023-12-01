@@ -43,8 +43,6 @@ async def star_game(callback):
     RiotClientService.CreateAuthenticationFile(endpoint.auth)
 
     logger.debug('start game')
-    loop = asyncio.get_event_loop()
-
     command = f"{path} --launch-product=valorant --launch-patchline=live --insecure"
     subprocess.Popen(command)
     await asyncio.sleep(5)
@@ -62,12 +60,13 @@ async def set_to_backup_setting():
 
 
 class Home(BaseMainFrame):
-    def __init__(self, master, change_account_button_clicked=NONE, *args, **kwargs):
+    def __init__(self, master, change_account_button_clicked=None, hide_main_window = None, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         # init value
-        self.loop: AbstractEventLoop = self.winfo_toplevel().loop
-
+        self.loop: AbstractEventLoop = asyncio.get_event_loop()
+        self.hide_main_window = hide_main_window
+        
         #
         self.main_home_frame = CTkFrame(self, fg_color="transparent")
 
@@ -100,7 +99,8 @@ class Home(BaseMainFrame):
     async def handel_play_button(self):
         logger.debug('play button clicked')
         await star_game(self.game_quit)
-        self.winfo_toplevel().withdraw()
+        
+        self.hide_main_window()
 
     async def game_quit(self):
         await set_to_backup_setting()

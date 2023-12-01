@@ -11,6 +11,7 @@ from datetime import date
 from ctypes import windll
 from win32com.client import Dispatch
 
+from widgets.Variable import Setting
 from ValLib import ExtraAuth, async_login_cookie, EndPoints
 from Constant import Constant
 
@@ -19,15 +20,24 @@ from Constant import Constant
 file_cookie = os.path.join(os.getenv('LOCALAPPDATA'), "MAOS\\data.d")
 game_setting = os.path.join(os.getenv('LOCALAPPDATA'), "MAOS\\setting_global.json")
 app_setting = os.path.join(os.getenv('LOCALAPPDATA'), "MAOS\\setting.json")
-today = date.today()
-logPath = "log"
-logName = today.strftime("%d-%m-%Y")
+path_shorcut_start = os.path.join(os.getenv('APPDATA'), "Microsoft\\Windows\\Start Menu\\Programs\\MAOS")
+
 
 # logging config
+today = date.today()
+if getattr(sys, 'frozen', False):
+    base_path = os.path.abspath(sys._MEIPASS)
+    logPath = os.path.join(base_path, "log")
+else:
+    logPath = "log"
+logName = today.strftime("%d-%m-%Y")
 logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
 
 logger = logging.getLogger("main_app")
 logger.setLevel(logging.DEBUG)
+
+if not os.path.exists(logPath):
+    os.mkdir(logPath)
 
 fileHandler = logging.FileHandler("{0}/{1}.log".format(logPath, logName))
 fileHandler.setFormatter(logFormatter)
@@ -38,6 +48,7 @@ consoleHandler = logging.StreamHandler()
 consoleHandler.setFormatter(logFormatter)
 fileHandler.setLevel(logging.DEBUG)
 logger.addHandler(consoleHandler)
+
 
 def _create_shortcut(path_shorcut, shell, endpoint: EndPoints):
     if endpoint.username == '':
@@ -64,18 +75,15 @@ def _create_shortcut(path_shorcut, shell, endpoint: EndPoints):
 def create_shortcut():
     logger.debug('craft shortcut')
     path_shorcut_home = os.path.join(os.path.expanduser('~'), 'Desktop')
-    data = os.getenv('APPDATA')
-    path_shorcut_start = os.path.join(data, "Microsoft\\Windows\\Start Menu\\Programs\\MAOS")
-    if not os.path.exists(path_shorcut_start):
-        os.mkdir(path_shorcut_start)
     shell = Dispatch('WScript.Shell')
     for i in Constant.Accounts:
         _create_shortcut(path_shorcut_home, shell, i)
     
-    if Constant.App_Setting['allows-start-menu'].get():
-        
-        for i in Constant.Accounts:
-            _create_shortcut(path_shorcut_start, shell, i)
+    if not Constant.App_Setting['allows-start-menu'].get():
+        return    
+    
+    for i in Constant.Accounts:
+        _create_shortcut(path_shorcut_start, shell, i)
 
 async def load_cookie_file(progress=None):
     try:
@@ -116,15 +124,14 @@ async def load_cookie(auths: ExtraAuth, progress):
 
 
 def load_valorant_setting():
+    logger.debug("loading valorant setting")
     try:
         with open(game_setting, 'r+', encoding='UTF-8') as file:
             Constant.Setting_Valorant = json.loads(file.read())
     except (FileNotFoundError, json.JSONDecodeError):
+        logger.warning("set default setting")
         Constant.Setting_Valorant = {}
-
-    # logger.info(Constant.Current_Acc_Setting)
-
-
+        
 def add_font_file(file):
 
     file = get_path(file)
@@ -138,7 +145,7 @@ def add_font_file(file):
         raise RuntimeError("Error while loading font.")
 
 
-def get_path(path):
+def get_path(path = None):
     if getattr(sys, 'frozen', False):
         path = os.path.join(sys._MEIPASS, path)
     else:
@@ -155,6 +162,9 @@ def make_dir():
     
     if not os.path.exists(avt):
         os.mkdir(avt)
+        
+    if not os.path.exists(path_shorcut_start):
+        os.mkdir(path_shorcut_start)
 
 async def check_account_status(account: EndPoints):
     party_infor = await account.Party.async_Party_Player()
@@ -229,3 +239,19 @@ async def get_acc_infor(pvp: EndPoints):
     title = await get_player_titles(account.title_id)
 
     return account.username, avt, title
+
+
+def load_app_setting(self):
+    Constant.App_Setting = Setting(self)
+        
+    # loading setting
+    logger.debug("loading setting")
+    try:
+        with open(app_setting, 'r+') as file:
+            data = dict(json.loads(file.read()))
+            if data.get('version', None)  is None:
+                raise json.JSONDecodeError('wrong setting format', "" , 0)
+            Constant.App_Setting.from_dict(data)
+
+    except (FileNotFoundError, json.JSONDecodeError):
+        logger.warning('No File Setting')

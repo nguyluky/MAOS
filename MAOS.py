@@ -16,7 +16,7 @@ from widgets.AccountChange import AccountChange
 from widgets.Home import Home, star_game, set_to_backup_setting, is_game_run
 from widgets.Loading import Loaing, PROGRESS
 from widgets.ImageHandel import load_img
-from widgets.Variable import Setting
+# from widgets.Variable import 
 
 run = True
 CORNER_RADIUS = 20
@@ -26,44 +26,35 @@ logger = logging.getLogger("main_app")
 class App(CTk):
     def __init__(self, start_size, title, icon, loop: AbstractEventLoop) -> None:
         super().__init__()
+        
+        # load app setting
+        load_app_setting(self)
+        
+        # load valorant setting
+        load_valorant_setting()
+        
+        
         # init window
-        Constant.App_Setting = Setting(self)
         self.title(title)
         self.geometry(f"{start_size[0]}x{start_size[1]}")
         self.iconbitmap(icon)
         set_appearance_mode("Dark")
         set_default_color_theme("blue")
-
-        # loading valorant setting
-        logger.debug("loading valorant setting")
-        load_valorant_setting()
-
-        # loading setting
-        logger.debug("loading setting")
-        try:
-            with open(app_setting, 'r+') as file:
-                data = dict(json.loads(file.read()))
-                Constant.App_Setting.from_dict(data)
-
-        except (FileNotFoundError, json.JSONDecodeError):
-            pass
-        
                 
         # icon_tray
         self.icon_tray = Icon("MAOS", load_img(r'assets\icons\icon.ico'), "MAOS", Menu(
-            MenuItem("open", lambda icon, item: print(item)),
-            MenuItem('heide', lambda icon, item: print(item)),
-            MenuItem("heide tray", lambda icon, item: print(item)),
-            MenuItem("exit", lambda icon, item: self.on_quit()),
-        ))
+            MenuItem("Show", lambda icon, item: self.loop.create_task(self.show_window())),
+            MenuItem("Set game default setting", lambda icon, item: self.loop.create_task(self.show_window())),
+            MenuItem("Quit", lambda icon, item: self.loop.create_task(self.async_on_quit()))) ,
+        )
         self.icon_tray.run_detached()
-
         # init value
+        self.isShow = True
         self.exitFlag = False
         self.loop = loop
         self.frames = {
-            "home": Home(self, lambda: self.render_("account_change")),
-            "loading_stats": Loaing(self, type_=PROGRESS, text="loading cookie"),
+            "home": Home(self, lambda: self.render_("account_change"), self.hide_window),
+            "loading_stats": Loaing(self, type_=PROGRESS, text=""),
             "login": Login(self, corner_radius=CORNER_RADIUS, close_click=self.handel_button_login_close),
             "account_change": AccountChange(self, corner_radius=CORNER_RADIUS, close_click=self.handel_button_login_close, add_click=self.handel_button_login_add)
         }
@@ -83,11 +74,13 @@ class App(CTk):
         # add event
         self.protocol("WM_DELETE_WINDOW", self.quit_handel)
 
-    def quit_handel(self):
-        if Constant.App_Setting["run-on-background"].get():
-            self.withdraw()
+    async def async_on_quit(self):
         self.on_quit()
     
+    async def show_window(self):
+        self.deiconify()
+        self.isShow = True
+
     def handel_button_login_add(self):
         self.render_('login')
 
@@ -112,8 +105,20 @@ class App(CTk):
 
         fram = self.frames[win]
         fram.show()
+    
+    def hide_window(self):
+        self.withdraw()
+        self.isShow = False
+        logger.debug('hide main window')
+    
+    def quit_handel(self):
+        if Constant.App_Setting["run-on-background"].get():
+            self.hide_window()
+            return
+        self.on_quit()
+    
 
-    def on_quit(self):
+    def on_quit(self, *args):
         logger.debug('quit')
         self.exitFlag = True
         accounts = []
@@ -136,27 +141,36 @@ class App(CTk):
         self.update()
         self.icon_tray.stop()
         # self.withdraw()
+        
+    async def main_loop(self):
+        self.update()
+        await asyncio.sleep(.01)
+
+    async def client_update(self):
+        if not Constant.App_Setting['backup-setting']:
+            await asyncio.sleep(10)
+            self.on_quit()
+            return
+            
+        if not await is_game_run():
+            Constant.Is_Game_Run = False
+            self.deiconify()
+            self.focus()
+            await set_to_backup_setting()
+        await asyncio.sleep(2)
 
     async def show(self):
         while not self.exitFlag:
-            if not Constant.Is_Game_Run:
-                self.update()
-                await asyncio.sleep(.01)
+            if Constant.Is_Game_Run:
+                await self.client_update()
+            elif not self.isShow:
+                await asyncio.sleep(1)
             else:
-                if not Constant.App_Setting["run-on-background"]:
-                    await asyncio.sleep(10)
-                    self.on_quit()
-                    continue
-                    
-                if not await is_game_run():
-                    Constant.Is_Game_Run = False
-                    self.deiconify()
-                    self.focus()
-                    await set_to_backup_setting()
-                await asyncio.sleep(2)
+                await self.main_loop()
+                
                 
         self.quit()
-        print("end")
+        logger.debug('app exit')
 
 
 class MainApp:

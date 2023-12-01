@@ -78,6 +78,8 @@ class Login(BaseMainFrame):
     def _render_user_pass(self):
         if self.user_name_fill:
             self.user_name_fill.destroy()
+            
+        # TODO
         self.user_name_fill = CTkEntry(
             self.frame_user_name_pass_fill, placeholder_text="USERNAME", height=35, width=250, font=self.fill_font)
         self.user_name_fill.place(relx=.5, rely=.20, anchor='c')

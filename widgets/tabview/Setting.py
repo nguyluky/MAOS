@@ -55,7 +55,6 @@ class SettingItemSwitch(BaseSettingItem):
         self.switch.grid(column=2, row=0, rowspan=2, sticky=E, padx=5)
 
 class Dropdow(CTkFrame):
-    # TODO hoàn thành
     def __init__(self, master, title, des , fg_color="#333333" ,*args, **kwargs, ):
         super().__init__(master, fg_color="transparent", height=50,*args, **kwargs)
         
@@ -188,7 +187,7 @@ class Setting(TabViewFrame):
         
         
         #    
-        overwrite_setting = Dropdow(self.main_frame, "Quick access", None)
+        overwrite_setting = Dropdow(self.main_frame, "Game Setting", None)
         overwrite_setting.grid(row=3, column=1, sticky=NSEW, pady=2)
         
         overwrite_setting.add_item(SettingItemSwitch(overwrite_setting, "overwrite setting", "overwrite your setting in game", Constant.App_Setting['overwrite-setting']))
