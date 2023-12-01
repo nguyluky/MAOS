@@ -77,13 +77,11 @@ def create_shortcut():
     path_shorcut_home = os.path.join(os.path.expanduser('~'), 'Desktop')
     shell = Dispatch('WScript.Shell')
     for i in Constant.Accounts:
-        _create_shortcut(path_shorcut_home, shell, i)
+        if Constant.App_Setting['allows-desktop'].get():
+            _create_shortcut(path_shorcut_home, shell, i)
     
-    if not Constant.App_Setting['allows-start-menu'].get():
-        return    
-    
-    for i in Constant.Accounts:
-        _create_shortcut(path_shorcut_start, shell, i)
+        if Constant.App_Setting['allows-start-menu'].get():
+            _create_shortcut(path_shorcut_start, shell, i)
 
 async def load_cookie_file(progress=None):
     try:
