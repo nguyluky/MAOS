@@ -37,7 +37,7 @@ When you have multiple accounts and share them with your friends, your accounts 
 >see more at https://pyinstaller.org/en/stable/
 
 ## Screenshort:
-![home](screenshot/home.png)
+![home](screenshot/home1.png)
 
 ![accout_list](screenshot/account_list.png)
 
