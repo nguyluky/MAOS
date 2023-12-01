@@ -31,8 +31,8 @@ class Login(BaseMainFrame):
         super().__init__(master, *arg, **kw)
         # init value
         self.loop = asyncio.get_event_loop()
-        self.loading_ = Loaing(self, text="Loading",
-                               height=80, width=90, type_=ICON)
+        self.loading_ = Loading(self, text="Loading",
+                                height=80, width=90, type_=ICON)
         self.login_text_font = CTkFont("VALORANT", 40)
         self.fill_font = CTkFont("MarkPro-Medium", 14)
 

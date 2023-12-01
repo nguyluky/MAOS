@@ -3,7 +3,6 @@ import inspect
 from typing import Any
 import tkinter
 
-
 SETTING = {
     "startup": False,
     "run-on-background": True,
@@ -65,12 +64,13 @@ class CustomVariable(BaseVariable):
     def get(self):
         return self.value
 
+
 class Setting(BaseVariable):
-    def __init__(self, root = None) -> None:
+    def __init__(self, root=None) -> None:
         super().__init__()
         self.raw_setting: dict = SETTING
         self.data = {}
-        
+
         for key, value in self.raw_setting.items():
             if isinstance(value, bool):
                 value = tkinter.BooleanVar(root, value)
@@ -80,12 +80,9 @@ class Setting(BaseVariable):
                 value = tkinter.DoubleVar(root, value)
             elif isinstance(value, str):
                 value = tkinter.StringVar(root, value)
-                
-        
+
             self.data[key] = value
-            
-                
-        
+
     def __getitem__(self, key) -> tkinter.Variable:
         return self.data[key]
 
@@ -98,7 +95,7 @@ class Setting(BaseVariable):
         self._callback_call()
 
     def from_dict(self, value: Any):
-        
+
         for key, value_ in value.items():
             self.data[key].set(value_)
 
@@ -107,5 +104,5 @@ class Setting(BaseVariable):
     def get(self):
         for key, value in self.data.items():
             self.raw_setting[key] = value.get()
-            
+
         return self.raw_setting

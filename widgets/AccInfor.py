@@ -9,7 +9,7 @@ from widgets.AccStatus import *
 from widgets.ImageHandel import *
 from ValLib import ExtraAuth, EndPoints
 from Constant import Constant
-from helper import get_acc_infor, check_account_status
+from helper import get_acc_info, check_account_status
 
 
 URL_PLYER_CARD_DEF = "https://media.valorant-api.com/playercards/c89194bd-4710-b54e-8d6c-60be6274fbb2/displayicon.png"
@@ -93,7 +93,7 @@ class AccInfor(CTkFrame):
             self.render_acc_infor(Constant.Current_Acc.get()))
 
     async def render_acc_infor(self, pvp: EndPoints):
-        name, avt, title = await get_acc_infor(pvp)
+        name, avt, title = await get_acc_info(pvp)
         self._set_avt(avt)
         self._set_title(title)
         self._set_name(name)

@@ -1,11 +1,8 @@
-import asyncio
-import logging
-import json
-import pickle
-import tkinter.font
+import subprocess
 
+import httpx
+from CTkMessagebox import CTkMessagebox
 from customtkinter import *
-from ValLib import EndPoints
 from asyncio.events import AbstractEventLoop
 from pystray import Icon, Menu, MenuItem
 
@@ -14,69 +11,98 @@ from Constant import Constant
 from widgets.Login import Login
 from widgets.AccountChange import AccountChange
 from widgets.Home import Home, star_game, set_to_backup_setting, is_game_run
-from widgets.Loading import Loaing, PROGRESS
+from widgets.Loading import Loading, PROGRESS
 from widgets.ImageHandel import load_img
-# from widgets.Variable import 
 
 run = True
 CORNER_RADIUS = 20
+VERSION = "1.0.4"
 
 logger = logging.getLogger("main_app")
 
+
 class App(CTk):
-    def __init__(self, start_size, title, icon, loop: AbstractEventLoop) -> None:
+    def __init__(self, start_size, title, icon, loop_: AbstractEventLoop) -> None:
         super().__init__()
-        
+
         # load app setting
         load_app_setting(self)
-        
+
         # load valorant setting
         load_valorant_setting()
-        
-        
+
         # init window
         self.title(title)
         self.geometry(f"{start_size[0]}x{start_size[1]}")
         self.iconbitmap(icon)
         set_appearance_mode("Dark")
         set_default_color_theme("blue")
-                
+
         # icon_tray
         self.icon_tray = Icon("MAOS", load_img(r'assets\icons\icon.ico'), "MAOS", Menu(
-            MenuItem("Show", lambda icon, item: self.loop.create_task(self.show_window())),
-            MenuItem("Set game default setting", lambda icon, item: self.loop.create_task(self.show_window())),
-            MenuItem("Quit", lambda icon, item: self.loop.create_task(self.async_on_quit()))) ,
-        )
+            MenuItem("Show", lambda icon_, item: self.loop.create_task(self.show_window())),
+            MenuItem("Set game default setting", lambda icon_, item: self.loop.create_task(self.show_window())),
+            MenuItem("Quit", lambda icon_, item: self.loop.create_task(self.async_on_quit()))),
+                              )
         self.icon_tray.run_detached()
+
         # init value
         self.isShow = True
         self.exitFlag = False
-        self.loop = loop
+        self.loop = loop_
+        self.new_version_url = None
+
+        # main frame
         self.frames = {
             "home": Home(self, lambda: self.render_("account_change"), self.hide_window),
-            "loading_stats": Loaing(self, type_=PROGRESS, text=""),
+            "loading_stats": Loading(self, type_=PROGRESS, text=""),
             "login": Login(self, corner_radius=CORNER_RADIUS, close_click=self.handel_button_login_close),
-            "account_change": AccountChange(self, corner_radius=CORNER_RADIUS, close_click=self.handel_button_login_close, add_click=self.handel_button_login_add)
+            "account_change": AccountChange(self, corner_radius=CORNER_RADIUS,
+                                            close_click=self.handel_button_login_close,
+                                            add_click=self.handel_button_login_add)
         }
-
         self.frames['login'].add_callback(self.handel_button_login_close)
 
         # loading cookie
         loading_stats = self.frames['loading_stats']
         loading_stats.show()
-        loading_stats.set_text("loading cookie file")
+        loading_stats.set_text("check update")
 
-        # load cooki
+        # load cookie
         logger.debug('load data')
-        task = self.loop.create_task(load_cookie_file(loading_stats))
+        task = self.loop.create_task(self.check_before_run())
         task.add_done_callback(lambda *args: self.widget_update())
 
         # add event
         self.protocol("WM_DELETE_WINDOW", self.quit_handel)
 
+    async def check_before_run(self):
+        await self.check_update()
+
+        loading_stats = self.frames['loading_stats']
+        loading_stats.set_text("loading cookie")
+        await load_cookie_file(loading_stats)
+
+    async def check_update(self):
+        url_file = await check_update()
+        if url_file is None:
+            return
+
+        if not getattr(sys, 'frozen', False):
+            logger.debug(f"new update {url_file}")
+            return True
+
+        msg = CTkMessagebox(title="Update?", message="Do you want to close the program and update",
+                            icon="question", option_1="Cancel", option_2="No", option_3="Yes")
+        response = msg.get()
+
+        if response == "Yes":
+            subprocess.Popen(f'ApplyUpdate.exe "{url_file}')
+            self.on_quit(is_save=False)
+
     async def async_on_quit(self):
         self.on_quit()
-    
+
     async def show_window(self):
         self.deiconify()
         self.isShow = True
@@ -85,9 +111,11 @@ class App(CTk):
         self.render_('login')
 
     def handel_button_login_close(self, *args):
+        logger.debug(f"handel login args {args}")
         self.render_('home')
 
     def widget_update(self, *args):
+        logger.debug(f"widget update args {args}")
         self.clear_()
         if len(Constant.Accounts) == 0:
             self.render_("login")
@@ -95,53 +123,58 @@ class App(CTk):
             self.render_("home")
 
     def clear_(self):
-        for i in self.frames.values():
-            i.hidden()
+        for frame in self.frames.values():
+            frame.hidden()
 
     def render_(self, win=None):
         self.clear_()
         if win is None:
             return
 
-        fram = self.frames[win]
-        fram.show()
-    
+        frame = self.frames[win]
+        frame.show()
+
     def hide_window(self):
         self.withdraw()
         self.isShow = False
         logger.debug('hide main window')
-    
+
     def quit_handel(self):
         if Constant.App_Setting["run-on-background"].get():
             self.hide_window()
             return
         self.on_quit()
-    
 
-    def on_quit(self, *args):
-        logger.debug('quit')
+    def on_quit(self, *args, is_save=True):
+        logger.debug(f'quit with args {args}')
         self.exitFlag = True
+
+        if is_save:
+            self.save_config()
+
+        self.update()
+        self.icon_tray.stop()
+        # self.withdraw()
+
+    @staticmethod
+    def save_config():
         accounts = []
-        for i in Constant.Accounts:
-            if i.remember:
-                accounts.append(i)
-        with open(file_cookie, "wb+") as file:
+        for account in Constant.Accounts:
+            if account.remember:
+                accounts.append(account)
+        with open(COOKIE_PATH, "wb+") as file:
             pickle.dump(accounts, file)
-        with open(game_setting, 'w+', encoding='UTF-8') as file:
+        with open(GAME_SETTING_PATH, 'w+', encoding='UTF-8') as file:
             setting = json.dumps(Constant.Setting_Valorant)
             file.write(setting)
 
-        with open(app_setting, 'w+') as file:
+        with open(APP_SETTING_PATH, 'w+') as file:
             setting = json.dumps(Constant.App_Setting.get())
             file.write(setting)
 
         if Constant.App_Setting['craft-shortcut'].get():
             create_shortcut()
 
-        self.update()
-        self.icon_tray.stop()
-        # self.withdraw()
-        
     async def main_loop(self):
         self.update()
         await asyncio.sleep(.01)
@@ -150,7 +183,7 @@ class App(CTk):
         if not Constant.App_Setting['backup-setting'].get():
             self.on_quit()
             return
-            
+
         if not await is_game_run():
             Constant.Is_Game_Run = False
             self.deiconify()
@@ -167,8 +200,7 @@ class App(CTk):
                 await asyncio.sleep(1)
             else:
                 await self.main_loop()
-                
-                
+
         self.quit()
         logger.debug('app exit')
 
@@ -177,17 +209,38 @@ class MainApp:
     def __init__(self):
         self.window = None
 
-    async def exec(self, loop):
+    async def exec(self, loop_):
         icon_path = get_path(r".\assets\icons\icon.ico")
-        self.window = App((810, 450), "MAOS", icon_path, loop)
+        self.window = App((810, 450), "MAOS", icon_path, loop_)
         await self.window.show()
 
 
-async def run_without_gui(uuid):
+async def check_update():
+    async with httpx.AsyncClient() as client:
+        data = await client.get("https://api.github.com/repos/nguyluky/MAOS/releases")
+        last_release = data.json()[0]
+
+        tag = last_release["tag_name"]
+
+        if tag < VERSION:
+            logger.info("no update")
+            return None
+
+        logger.info(f"new update {tag}")
+        assets = last_release["assets"]
+        url_file = None
+        for asset in assets:
+            if asset["name"] == "MAOS.zip":
+                url_file = asset["browser_download_url"]
+
+        return url_file
+
+
+async def run_without_gui(player_uuid):
     await load_cookie_file()
-    for i in Constant.Accounts:
-        if i.user_id == uuid:
-            Constant.Current_Acc.set(EndPoints(i))
+    for account in Constant.Accounts:
+        if account.user_id == player_uuid:
+            Constant.Current_Acc.set(EndPoints(account))
 
     load_valorant_setting()
 
@@ -195,14 +248,16 @@ async def run_without_gui(uuid):
     if curr_acc is None:
         return
 
-    await star_game(game_quit)
+    await star_game()
     while run:
         await asyncio.sleep(2)
+
 
 async def game_quit():
     await set_to_backup_setting()
     global run
     run = False
+
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()

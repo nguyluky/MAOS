@@ -4,7 +4,6 @@ from CTkToolTip import CTkToolTip
 from customtkinter import *
 
 from widgets.ImageHandel import *
-from widgets.Structs import TabViewFrame
 
 from widgets.tabview.MatchHistory import MatchHistory
 from widgets.tabview.Shop import Shop
@@ -85,11 +84,9 @@ class TabMaster(CTkFrame):
                 e.pack(side=LEFT, padx=2)
 
     def _click_handel(self, ele):
-        # xóa toàn bộ bg
         for e in self.list_button:
             e.configure(fg_color=self.bg_color)
 
-        # lấy nút bấm và thay đổi bg
         if isinstance(self.values, dict):
             list_ = list(self.values.keys())
             index = list_.index(ele)
@@ -103,6 +100,7 @@ class TabMaster(CTkFrame):
                 self.command(ele)
 
     def craft_button(self, e):
+        button = None
         if isinstance(self.values, dict):
             button = CTkButton(self, image=self.values[e], text='', fg_color=self.bg_color,
                                corner_radius=self.corner_radius)

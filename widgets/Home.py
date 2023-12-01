@@ -1,30 +1,25 @@
 import subprocess
-import logging
 import psutil
 
-from threading import Thread
-from asyncio.events import AbstractEventLoop
-from Constant import Constant
 from RiotClientHandel import RiotClientService, find_riot_client
-from ValLib import EndPoints
 from widgets.AccInfor import *
 from widgets.TabView import *
-from widgets.Timer_async import SetInterval, SetTimeout
 from widgets.Structs import BaseMainFrame
 
 CORNER_RADIUS = 20
 
 logger = logging.getLogger("main_app")
 
+
 async def is_game_run():
-    for proc in psutil.process_iter():
-        name = proc.name()
+    for process in psutil.process_iter():
+        name = process.name()
         if "RiotClientServices" in name:
             return True
     return False
 
-async def star_game():
 
+async def star_game():
     RiotClientService.kill_RiotClientServices()
     await asyncio.sleep(1)
     # copy setting
@@ -47,7 +42,8 @@ async def star_game():
     subprocess.Popen(command)
     await asyncio.sleep(5)
     Constant.Is_Game_Run = True
-    
+
+
 async def set_to_backup_setting():
     logger.debug('game quit')
     RiotClientService.kill_RiotClientServices()
@@ -59,13 +55,13 @@ async def set_to_backup_setting():
 
 
 class Home(BaseMainFrame):
-    def __init__(self, master, change_account_button_clicked=None, hide_main_window = None, *args, **kwargs):
+    def __init__(self, master, change_account_button_clicked=None, hide_main_window=None, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         # init value
         self.loop: AbstractEventLoop = asyncio.get_event_loop()
         self.hide_main_window = hide_main_window
-        
+
         #
         self.main_home_frame = CTkFrame(self, fg_color="transparent")
 
@@ -76,11 +72,11 @@ class Home(BaseMainFrame):
         home_frame_top.grid_columnconfigure(0, weight=7)
         home_frame_top.grid_columnconfigure(1, weight=1)
 
-        # AccInfor
-        self.acc_infor = AccInfor(home_frame_top, corner_radius=CORNER_RADIUS,
-                                  change_account_click=change_account_button_clicked)
-        self.acc_infor.grid(row=0, column=0, sticky=NSEW,
-                            padx=(10, 0), pady=10)
+        # AccInfo
+        self.acc_info = AccInfor(home_frame_top, corner_radius=CORNER_RADIUS,
+                                 change_account_click=change_account_button_clicked)
+        self.acc_info.grid(row=0, column=0, sticky=NSEW,
+                           padx=(10, 0), pady=10)
 
         # play button
         button_play_font = CTkFont("Consolas", 20, "bold")
@@ -104,4 +100,4 @@ class Home(BaseMainFrame):
         super().show()
         if Constant.Current_Acc.get() is None:
             Constant.Current_Acc.set(Constant.EndPoints[0])
-        self.acc_infor.update_account()
+        self.acc_info.update_account()

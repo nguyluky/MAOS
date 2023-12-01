@@ -1,9 +1,7 @@
 from customtkinter import *
 
-from asyncio.events import AbstractEventLoop
 from widgets.ImageHandel import open_gif_image
 from widgets.Structs import BaseMainFrame
-from Constant import Constant
 
 PROGRESS = 1
 ICON = 0
@@ -40,7 +38,7 @@ class ImageAnimation(CTkLabel):
         self.after(self.fps, self.update_img)
 
 
-class Loaing(BaseMainFrame):
+class Loading(BaseMainFrame):
     def __init__(self, master, text='', type_=PROGRESS, *arg, **kw):
         super().__init__(master, *arg, **kw)
 
@@ -65,7 +63,7 @@ class Loaing(BaseMainFrame):
     def set_text(self, text):
         self.content.configure(text=text)
 
-    def setprogress(self, value):
+    def set_progress(self, value):
         # Set progress bar to specific value (range 0 to 1).
         if self.type_ == PROGRESS:
             self.login_icon.set(value)

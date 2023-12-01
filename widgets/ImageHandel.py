@@ -2,8 +2,6 @@ import functools
 import io
 import httpx
 import numpy as np
-import os
-import sys
 
 from io import BytesIO
 from PIL import Image, ImageDraw
@@ -12,7 +10,6 @@ from helper import get_path
 
 
 MASK_CIRCULAR = "./assets/img/mask_circular.png"
-
 cache = {}
 
 

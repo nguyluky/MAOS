@@ -14,7 +14,7 @@ class AccStatus(CTkFrame):
 
         self.set_status(status)
 
-    def _in_math_wiget(self, status):
+    def _in_math_widget(self, status):
 
         # hiển thị kết quả trận đấu
         label1 = CTkLabel(
@@ -27,17 +27,17 @@ class AccStatus(CTkFrame):
         label2.pack(side=LEFT, padx=10)
         label3.pack(side=LEFT, expand=True, fill='x')
 
-    def _online_wiget(self):
-        status = CTkLabel(self, text="ONLINE", # TODO 
+    def _online_widget(self):
+        status = CTkLabel(self, text="ONLINE",
                           font=self.font_status, text_color="#20FECA")
         status.pack(expand=True, fill='both')
 
-    def _in_match_wiget(self):
+    def _in_match_widget(self):
         status = CTkLabel(self, text="IN-MATCH",
                           font=self.font_status, text_color="#20FECA")
         status.pack(expand=True, fill='both')
 
-    def _offline_wiget(self):
+    def _offline_widget(self):
         status = CTkLabel(self, text="OFFLINE",
                           font=self.font_status, text_color="#FF4557")
         status.pack(expand=True, fill='both')
@@ -49,10 +49,10 @@ class AccStatus(CTkFrame):
             widget.destroy()
 
         if status == "off":
-            self._offline_wiget()
+            self._offline_widget()
         elif status == "on":
-            self._online_wiget()
+            self._online_widget()
         elif status == "in":
-            self._in_match_wiget()
+            self._in_match_widget()
         else:
-            self._in_math_wiget(status)
+            self._in_math_widget(status)

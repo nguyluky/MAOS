@@ -3,7 +3,7 @@ import asyncio
 
 # scr https://stackoverflow.com/questions/45419723/python-timer-with-asyncio-coroutine/45430833#45430833
 class SetInterval:
-    def __init__(self, timeout, callback, *args):
+    def __init__(self, timeout, callback):
         self._timeout = timeout
         self._callback = callback
         self._task = None

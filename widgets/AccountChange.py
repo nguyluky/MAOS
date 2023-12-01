@@ -11,19 +11,17 @@ from Constant import Constant
 from widgets.Structs import BaseMainFrame
 from widgets.ImageHandel import load_img, async_load_img_from_url, cropping_image_in_a_circular
 from widgets.AccStatus import *
-from helper import get_acc_infor
+from helper import get_acc_info
 
 
-save_path = os.path.join(os.getenv('LOCALAPPDATA'), 'MAOS\\Avt')
-
-
-URL_PLYER_CARD_DEF = "https://media.valorant-api.com/playercards/c89194bd-4710-b54e-8d6c-60be6274fbb2/displayicon.png"
+AVT_PATH = os.path.join(os.getenv('LOCALAPPDATA'), 'MAOS\\Avt')
+URL_PLAYER_CARD_DEF = "https://media.valorant-api.com/playercards/c89194bd-4710-b54e-8d6c-60be6274fbb2/displayicon.png"
 
 logger = logging.getLogger('main_app')
 
 
 class AccView(CTkFrame):
-    def __init__(self, master, corner_radius, name='', avt=URL_PLYER_CARD_DEF, title='', command_login=None, command_remove=None, *arg, **kw) -> None:
+    def __init__(self, master, corner_radius, name='', avt=URL_PLAYER_CARD_DEF, title='', command_login=None, command_remove=None, *arg, **kw) -> None:
         super().__init__(master, corner_radius=corner_radius, height=50, *arg, **kw)
 
         # setup value
@@ -86,7 +84,7 @@ class AccView(CTkFrame):
             i: ExtraAuth
             if i.username == self.name.get():
                 img_pil.save(os.path.join(
-                    save_path, f"{i.user_id}.ico"), format='ICO')
+                    AVT_PATH, f"{i.user_id}.ico"), format='ICO')
         size = (30, 30)
         self.avt_img = CTkImage(img_pil, size=size if (
             size[0] != 0 or size[1] != 0) else img_pil.size)
@@ -175,7 +173,7 @@ class AccountChange(BaseMainFrame):
 
     async def _add(self, i: EndPoints):
         if self.frame_acc.get(i.auth.user_id, None) is None:
-            name, avt, title = await get_acc_infor(i)
+            name, avt, title = await get_acc_info(i)
             frame = AccView(self.frame_center, 20, name, avt, title, command_login=lambda: self.login_handel(
                 i), command_remove=lambda: self.remove_handel(i))
             self.frame_acc[i.auth.user_id] = frame
