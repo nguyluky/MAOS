@@ -26,7 +26,7 @@ path_shorcut_start = os.path.join(os.getenv('APPDATA'), "Microsoft\\Windows\\Sta
 # logging config
 today = date.today()
 if getattr(sys, 'frozen', False):
-    base_path = os.path.abspath(sys._MEIPASS)
+    base_path = os.path.dirname(sys._MEIPASS)
     logPath = os.path.join(base_path, "log")
 else:
     logPath = "log"

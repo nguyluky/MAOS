@@ -23,7 +23,7 @@ async def is_game_run():
             return True
     return False
 
-async def star_game(callback):
+async def star_game():
 
     RiotClientService.kill_RiotClientServices()
     await asyncio.sleep(1)
@@ -50,13 +50,12 @@ async def star_game(callback):
     
 async def set_to_backup_setting():
     logger.debug('game quit')
-    if Constant.App_Setting["overwrite-setting"]:
-        RiotClientService.kill_RiotClientServices()
-        # set current setting
-        logger.debug("setback to before setting")
-        await asyncio.sleep(1)
-        endpoint: EndPoints = Constant.Current_Acc.get()
-        await endpoint.Setting.async_Put_Preference(Constant.Current_Acc_Setting)
+    RiotClientService.kill_RiotClientServices()
+    # set current setting
+    logger.debug("setback to before setting")
+    await asyncio.sleep(1)
+    endpoint: EndPoints = Constant.Current_Acc.get()
+    await endpoint.Setting.async_Put_Preference(Constant.Current_Acc_Setting)
 
 
 class Home(BaseMainFrame):
@@ -98,12 +97,8 @@ class Home(BaseMainFrame):
 
     async def handel_play_button(self):
         logger.debug('play button clicked')
-        await star_game(self.game_quit)
-        
         self.hide_main_window()
-
-    async def game_quit(self):
-        await set_to_backup_setting()
+        await star_game()
 
     def show(self):
         super().show()

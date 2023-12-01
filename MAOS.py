@@ -147,14 +147,14 @@ class App(CTk):
         await asyncio.sleep(.01)
 
     async def client_update(self):
-        if not Constant.App_Setting['backup-setting']:
-            await asyncio.sleep(10)
+        if not Constant.App_Setting['backup-setting'].get():
             self.on_quit()
             return
             
         if not await is_game_run():
             Constant.Is_Game_Run = False
             self.deiconify()
+            self.isShow = True
             self.focus()
             await set_to_backup_setting()
         await asyncio.sleep(2)

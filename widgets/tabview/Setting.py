@@ -191,7 +191,7 @@ class Setting(TabViewFrame):
         overwrite_setting.grid(row=3, column=1, sticky=NSEW, pady=2)
         
         overwrite_setting.add_item(SettingItemSwitch(overwrite_setting, "overwrite setting", "overwrite your setting in game", Constant.App_Setting['overwrite-setting']))
-        overwrite_setting.add_item(SettingItemSwitch(overwrite_setting, "backup setting", "set back setting, requires run on background", Constant.App_Setting['backup-setting']))
+        overwrite_setting.add_item(SettingItemSwitch(overwrite_setting, "backup setting", "set back setting", Constant.App_Setting['backup-setting']))
 
     def show(self):
         super().show()
