@@ -6,14 +6,15 @@ import asyncio
 import json
 import ctypes
 import httpx
-from datetime import date
 
 from ctypes import windll
 from win32com.client import Dispatch
 
-from widgets.Variable import Setting
+from Widgets.Variable import Setting
 from ValLib import ExtraAuth, async_login_cookie, EndPoints
-from Constant import Constant
+from Helper.Constant import Constant
+from Helper.logger import logger
+
 
 # path init
 COOKIE_PATH = os.path.join(os.getenv('LOCALAPPDATA'), "MAOS\\data.d")
@@ -22,33 +23,6 @@ APP_SETTING_PATH = os.path.join(os.getenv('LOCALAPPDATA'), "MAOS\\setting.json")
 PATH_SHORTCUT_START = os.path.join(os.getenv('APPDATA'), "Microsoft\\Windows\\Start Menu\\Programs\\MAOS")
 PATH_SHORTCUT_HOME = os.path.join(os.path.expanduser('~'), 'Desktop')
 MAOS = os.path.join(os.getenv('LOCALAPPDATA'), 'MAOS')
-
-# logging config
-today = date.today()
-if getattr(sys, 'frozen', False):
-    base_path = os.path.dirname(sys._MEIPASS)
-    logPath = os.path.join(base_path, "log")
-else:
-    logPath = "log"
-logName = today.strftime("%d-%m-%Y")
-logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
-
-logger = logging.getLogger("main_app")
-logger.setLevel(logging.DEBUG)
-
-if not os.path.exists(logPath):
-    os.mkdir(logPath)
-
-fileHandler = logging.FileHandler("{0}/{1}.log".format(logPath, logName))
-fileHandler.setFormatter(logFormatter)
-fileHandler.setLevel(logging.DEBUG)
-logger.addHandler(fileHandler)
-
-consoleHandler = logging.StreamHandler()
-consoleHandler.setFormatter(logFormatter)
-fileHandler.setLevel(logging.DEBUG)
-logger.addHandler(consoleHandler)
-
 
 def _create_shortcut(path_shortcut, shell, endpoint: ExtraAuth):
     if endpoint.username == '':
@@ -77,10 +51,10 @@ def create_shortcut():
     logger.debug('craft shortcut')
     shell = Dispatch('WScript.Shell')
     for i in Constant.Accounts:
-        if Constant.App_Setting['allows-desktop'].get():
+        if Constant.App_Setting.allows_desktop.get():
             _create_shortcut(PATH_SHORTCUT_HOME, shell, i)
 
-        if Constant.App_Setting['allows-start-menu'].get():
+        if Constant.App_Setting.allows_start_menu.get():
             _create_shortcut(PATH_SHORTCUT_START, shell, i)
 
 
@@ -117,7 +91,10 @@ async def load_cookie(auths: ExtraAuth, progress):
 
     loop = asyncio.get_event_loop()
     tasks = [loop.create_task(loading.login_cookie(i)) for i in auths]
-    Constant.Accounts = await asyncio.gather(*tasks)
+    accounts = await asyncio.gather(*tasks)
+    for acc in accounts:
+        Constant.Accounts.append(acc)
+        
     for i in Constant.Accounts:
         Constant.EndPoints.append(EndPoints(i))
 
@@ -238,8 +215,8 @@ async def get_acc_info(pvp: EndPoints):
     return account.username, avt, title
 
 
-def load_app_setting(self):
-    Constant.App_Setting = Setting(self)
+def load_app_setting(root):
+    Constant.App_Setting = Setting(root)
 
     # loading setting
     logger.debug("loading setting")

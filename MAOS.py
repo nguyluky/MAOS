@@ -1,18 +1,17 @@
 import subprocess
 
-import httpx
 from CTkMessagebox import CTkMessagebox
 from customtkinter import *
 from asyncio.events import AbstractEventLoop
 from pystray import Icon, Menu, MenuItem
 
-from helper import *
-from Constant import Constant
-from widgets.Login import Login
-from widgets.AccountChange import AccountChange
-from widgets.Home import Home, star_game, set_to_backup_setting, is_game_run
-from widgets.Loading import Loading, PROGRESS
-from widgets.ImageHandel import load_img
+from Helper.helper import *
+from Helper.Constant import Constant
+from Widgets.Login import Login
+from Widgets.AccountSwitch import AccountSwitch
+from Widgets.Home import Home, star_game, set_to_backup_setting, is_game_run
+from Widgets.Loading import Loading, PROGRESS
+from Widgets.ImageHandel import load_img
 
 run = True
 CORNER_RADIUS = 20
@@ -26,9 +25,11 @@ class App(CTk):
         super().__init__()
 
         # load app setting
+        logger.debug("load app setting")
         load_app_setting(self)
 
         # load valorant setting
+        logger.debug("load valorant setting")
         load_valorant_setting()
 
         # init window
@@ -57,19 +58,13 @@ class App(CTk):
             "home": Home(self, lambda: self.render_("account_change"), self.hide_window),
             "loading_stats": Loading(self, type_=PROGRESS, text=""),
             "login": Login(self, corner_radius=CORNER_RADIUS, close_click=self.handel_button_login_close),
-            "account_change": AccountChange(self, corner_radius=CORNER_RADIUS,
+            "account_change": AccountSwitch(self, corner_radius=CORNER_RADIUS,
                                             close_click=self.handel_button_login_close,
                                             add_click=self.handel_button_login_add)
         }
         self.frames['login'].add_callback(self.handel_button_login_close)
 
-        # loading cookie
-        loading_stats = self.frames['loading_stats']
-        loading_stats.show()
-        loading_stats.set_text("check update")
-
-        # load cookie
-        logger.debug('load data')
+        # check update and load cookie
         task = self.loop.create_task(self.check_before_run())
         task.add_done_callback(lambda *args: self.widget_update())
 
@@ -77,28 +72,38 @@ class App(CTk):
         self.protocol("WM_DELETE_WINDOW", self.quit_handel)
 
     async def check_before_run(self):
+        loading_stats = self.frames['loading_stats']
+        loading_stats.show()
+
+        loading_stats.set_text("check update")
         await self.check_update()
 
-        loading_stats = self.frames['loading_stats']
         loading_stats.set_text("loading cookie")
+        logger.debug('load cookie')
         await load_cookie_file(loading_stats)
+
+        if Constant.App_Setting.default_account.get() == "":
+            return
+
+        for endpoint in Constant.EndPoints:
+            if endpoint.auth.username == Constant.App_Setting.default_account.get():
+                Constant.Current_Acc.set(endpoint)
 
     async def check_update(self):
         url_file = await check_update()
         if url_file is None:
             return
 
-        if not getattr(sys, 'frozen', False):
-            logger.debug(f"new update {url_file}")
-            return True
+        # if not getattr(sys, 'frozen', False):
+        #     logger.debug(f"new update {url_file}")
+        #     return True
 
-        msg = CTkMessagebox(title="Update?", message="Do you want to close the program and update",
-                            icon="question", option_1="Cancel", option_2="No", option_3="Yes")
+        msg = CTkMessagebox(title="Software Update", message="MASO 1.0.4 are releases \n Do you want update",
+                            icon="question", option_1="Update now", option_2="Update when exit", option_3="No")
         response = msg.get()
-
+        logger.debug(response)
         if response == "Yes":
-            subprocess.Popen(f'ApplyUpdate.exe "{url_file}')
-            self.on_quit(is_save=False)
+            pass
 
     async def async_on_quit(self):
         self.on_quit()
@@ -140,7 +145,7 @@ class App(CTk):
         logger.debug('hide main window')
 
     def quit_handel(self):
-        if Constant.App_Setting["run-on-background"].get():
+        if Constant.App_Setting.run_on_background.get():
             self.hide_window()
             return
         self.on_quit()
@@ -159,20 +164,23 @@ class App(CTk):
     @staticmethod
     def save_config():
         accounts = []
+        # save account
         for account in Constant.Accounts:
             if account.remember:
                 accounts.append(account)
         with open(COOKIE_PATH, "wb+") as file:
             pickle.dump(accounts, file)
+
+        # game setting
         with open(GAME_SETTING_PATH, 'w+', encoding='UTF-8') as file:
             setting = json.dumps(Constant.Setting_Valorant)
             file.write(setting)
 
         with open(APP_SETTING_PATH, 'w+') as file:
-            setting = json.dumps(Constant.App_Setting.get())
+            setting = json.dumps(Constant.App_Setting.to_dict())
             file.write(setting)
 
-        if Constant.App_Setting['craft-shortcut'].get():
+        if Constant.App_Setting.craft_shortcut.get():
             create_shortcut()
 
     async def main_loop(self):
@@ -180,7 +188,7 @@ class App(CTk):
         await asyncio.sleep(.01)
 
     async def client_update(self):
-        if not Constant.App_Setting['backup-setting'].get():
+        if not Constant.App_Setting.backup_setting.get():
             self.on_quit()
             return
 
@@ -243,14 +251,18 @@ async def run_without_gui(player_uuid):
             Constant.Current_Acc.set(EndPoints(account))
 
     load_valorant_setting()
+    # load_app_setting(None)
 
     curr_acc = Constant.Current_Acc.get()
     if curr_acc is None:
         return
 
-    await star_game()
-    while run:
-        await asyncio.sleep(2)
+    setting: dict = {}
+    with open(APP_SETTING_PATH) as file:
+        setting = json.loads(file.read())
+
+    await star_game(setting.get("overwrite_setting", False))
+    await asyncio.sleep(20)
 
 
 async def game_quit():

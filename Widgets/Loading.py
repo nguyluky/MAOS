@@ -1,7 +1,7 @@
 from customtkinter import *
 
-from widgets.ImageHandel import open_gif_image
-from widgets.Structs import BaseMainFrame
+from Widgets.ImageHandel import open_gif_image
+from Widgets.Structs import BaseMainFrame
 
 PROGRESS = 1
 ICON = 0

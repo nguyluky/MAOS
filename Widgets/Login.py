@@ -5,11 +5,11 @@ import inspect
 
 from CTkMessagebox import CTkMessagebox
 from ValLib import User
-from widgets.Loading import *
-from Constant import Constant
+from Widgets.Loading import *
+from Helper.Constant import Constant
 from ValLib import authenticate, EndPoints, exceptions
-from widgets.Structs import BaseMainFrame
-from widgets.ImageHandel import load_img
+from Widgets.Structs import BaseMainFrame
+from Widgets.ImageHandel import load_img
 
 logger = logging.getLogger("main_app")
 
@@ -17,8 +17,11 @@ logger = logging.getLogger("main_app")
 async def handel_add_cookie(user: User):
     try:
         auth = await authenticate(user)
-        Constant.Accounts.append(auth)
         Constant.EndPoints.append(EndPoints(auth))
+        if len(Constant.Accounts) == 0:
+            Constant.Current_Acc.set(Constant.EndPoints[0])
+        Constant.Accounts.append(auth)
+
         return True
 
     except exceptions.AuthException as err:
@@ -44,36 +47,35 @@ class Login(BaseMainFrame):
 
         # button close
         close_img = CTkImage(load_img(r'assets\img\close-d.png'),
-                             load_img(f'assets\img\close-l.png'))
+                             load_img(r'assets\img\close-l.png'))
         self.close_button = CTkButton(
             self, image=close_img, command=close_click, text='', fg_color="transparent", height=40, width=40)
 
         # layout
-        self.frame_center = CTkFrame(self)
-        self.frame_center.place(anchor="c", relx=.5,
-                                rely=.5, relwidth=0.6, relheight=0.7)
-        login_text = CTkLabel(
-            self.frame_center, text="login", font=self.login_text_font)
-        login_text.pack(pady=(20, 0))
-
-        self.frame_user_name_pass_fill = CTkFrame(
-            self.frame_center, fg_color="transparent")
-
+        self.frame_center = CTkFrame(self, width=360, height=320)
+        self.frame_center.place(anchor="c", relx=.5, rely=.5)
+        login_text = CTkLabel(self.frame_center, text="login", font=self.login_text_font)
+        login_text.place(anchor="c", relx=0.5, y=50)
         self._render_user_pass()
-
-        self.frame_user_name_pass_fill.pack(fill=X, side=TOP, expand=True)
 
         def button_command():
             logger.debug('button login')
+
+            user = self.user_name_fill.get()
+            pass_ = self.user_pass_fill.get()
+
+            if user == "" or pass_ == "":
+                return
+
             self.frame_center.place_forget()
             self.loading_.place(anchor="c", relx=.5, rely=.5,
                                 relwidth=0.6, relheight=0.7)
-            self.login(self.user_name_fill.get(),
-                       self.user_pass_fill.get(), self.check_var.get())
+
+            self.login(user, pass_, self.check_var.get())
 
         self.button = CTkButton(
             self.frame_center, text="LOGIN", height=35, command=button_command)
-        self.button.pack(side=BOTTOM, pady=(0, 20))
+        self.button.place(relx=.5, y=260, anchor='c')
 
     def _render_user_pass(self):
         if self.user_name_fill:
@@ -81,18 +83,18 @@ class Login(BaseMainFrame):
             
         # TODO
         self.user_name_fill = CTkEntry(
-            self.frame_user_name_pass_fill, placeholder_text="USERNAME", height=35, width=250, font=self.fill_font)
-        self.user_name_fill.place(relx=.5, rely=.20, anchor='c')
+            self.frame_center, placeholder_text="USERNAME", height=35, width=250, font=self.fill_font)
+        self.user_name_fill.place(relx=.5, y=120, anchor='c')
 
         if self.user_pass_fill:
             self.user_pass_fill.destroy()
-        self.user_pass_fill = CTkEntry(
-            self.frame_user_name_pass_fill, placeholder_text="PASSWORD", height=35, width=250, font=self.fill_font)
-        self.user_pass_fill.place(relx=.5, rely=.60, anchor='c')
+        self.user_pass_fill = CTkEntry(self.frame_center, placeholder_text="PASSWORD", height=35, width=250,
+                                       font=self.fill_font)
+        self.user_pass_fill.place(relx=.5, y=170, anchor='c')
 
-        checkbox = CTkCheckBox(self.frame_user_name_pass_fill, text="remember", variable=self.check_var, onvalue=True,
-                               offvalue=False)
-        checkbox.place(relx=.5, rely=.85, anchor='c')
+        checkbox = CTkCheckBox(self.frame_center, text="remember", variable=self.check_var, onvalue=True,
+                               offvalue=False, width=240, checkbox_width=20, checkbox_height=20)
+        checkbox.place(relx=.5, y=210, anchor='c')
 
     async def _login(self, user_name, passw, remember):
         logger.debug('start login')
@@ -102,8 +104,9 @@ class Login(BaseMainFrame):
         if not a:
             self.loading_.hidden()
             self.frame_center.place(
-                anchor="c", relx=.5, rely=.5, relwidth=0.6, relheight=0.7)
+                anchor="c", relx=.5, rely=.5)
         else:
+
             self.call_callback()
 
     def login(self, user_name, passw, remember):
@@ -121,8 +124,9 @@ class Login(BaseMainFrame):
 
     def show(self):
         super().show()
-
         self._render_user_pass()
         self.check_var.set(False)
+        self.loading_.hidden()
+        self.frame_center.place(anchor="c", relx=.5, rely=.5)
         if len(Constant.Accounts) != 0:
             self.close_button.place(relx=1, y=0, anchor=NE)

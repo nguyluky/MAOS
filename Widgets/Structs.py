@@ -21,14 +21,14 @@ class TabViewFrame(CTkFrame):
 
 class BaseMainFrame(CTkFrame):
     def __init__(self, *args, **kwargs):
-        super().__init__(fg_color="transparent", *args, **kwargs)
+        super().__init__(fg_color="#1F2024", *args, **kwargs)
 
         self.callbacks = []
         self.loop = asyncio.get_event_loop()
         self.is_show = False
 
     def add_callback(self, callback):
-        self.callbacks.append(callable)
+        self.callbacks.append(callback)
 
     def call_callback(self):
         for func in self.callbacks:

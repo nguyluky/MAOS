@@ -1,16 +1,15 @@
 import asyncio
-import json
 import tkinter
 import logging
 
 from customtkinter import *
 
-from Constant import Constant
+from Helper.Constant import Constant
 from ValLib import EndPoints
 
-from widgets.ImageHandel import async_load_img_from_url
-from widgets.Structs import TabViewFrame
-from widgets.Loading import ImageAnimation
+from Widgets.ImageHandel import async_load_img_from_url
+from Widgets.Structs import TabViewFrame
+from Widgets.Loading import ImageAnimation
 
 
 MAP_URL_2_NAME = {

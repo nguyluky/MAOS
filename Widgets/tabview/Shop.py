@@ -3,10 +3,10 @@ import logging
 
 import httpx
 
-from Constant import Constant
+from Helper.Constant import Constant
 from ValLib import EndPoints
-from widgets.Structs import TabViewFrame
-from widgets.tabview.ImageLabel import *
+from Widgets.Structs import TabViewFrame
+from Widgets.tabview.ImageLabel import *
 
 logger = logging.getLogger("main_app")
 

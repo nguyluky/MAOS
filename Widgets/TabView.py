@@ -3,12 +3,12 @@ from typing import Union, Tuple
 from CTkToolTip import CTkToolTip
 from customtkinter import *
 
-from widgets.ImageHandel import *
+from Widgets.ImageHandel import *
 
-from widgets.tabview.MatchHistory import MatchHistory
-from widgets.tabview.Shop import Shop
-from widgets.tabview.ValorantSetting import ValorantSetting
-from widgets.tabview.Setting import Setting
+from Widgets.tabview.MatchHistory import MatchHistory
+from Widgets.tabview.Shop import Shop
+from Widgets.tabview.ValorantSetting import ValorantSetting
+from Widgets.tabview.Setting import Setting
 
 
 class TabView(CTkFrame):

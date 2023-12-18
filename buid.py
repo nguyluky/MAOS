@@ -24,15 +24,3 @@ PyInstaller.__main__.run([
     "--name", "MAOS",
     fr"{path}\MAOS.py"
 ])
-
-PyInstaller.__main__.run([
-    '--onefile',
-    "--windowed",
-    "--workpath", fr"{path}\.buid\buid",
-    "--distpath", fr"{path}\.buid",
-    "--name", "ApplyUpdate",
-    fr"{path}\ApplyUpdate.py"
-])
-time.sleep(5)
-
-shutil.move(f"{path}\.buid\ApplyUpdate.exe", f"{path}\.buid\MAOS\ApplyUpdate.exe")

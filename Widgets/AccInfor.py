@@ -1,15 +1,12 @@
-import inspect
 import asyncio
 import tkinter as tk
 import logging
 
-from asyncio.events import AbstractEventLoop
-
-from widgets.AccStatus import *
-from widgets.ImageHandel import *
-from ValLib import ExtraAuth, EndPoints
-from Constant import Constant
-from helper import get_acc_info, check_account_status
+from Widgets.AccStatus import *
+from Widgets.ImageHandel import *
+from ValLib import EndPoints
+from Helper.Constant import Constant
+from Helper.helper import get_acc_info, check_account_status
 
 
 URL_PLYER_CARD_DEF = "https://media.valorant-api.com/playercards/c89194bd-4710-b54e-8d6c-60be6274fbb2/displayicon.png"
@@ -69,7 +66,7 @@ class AccInfor(CTkFrame):
                                         command=change_account_click, hover=False, fg_color="transparent")
 
         self.bind('<Configure>', self.update_pos)
-        self.after(Constant.App_Setting['refresh-time'].get(),
+        self.after(Constant.App_Setting.refresh_time.get(),
                    lambda *args: self.loop.create_task(self.update_status()))
 
     async def update_status(self):
@@ -77,18 +74,18 @@ class AccInfor(CTkFrame):
         if acc:
             status = await check_account_status(acc)
             self.acc_status.set_status(status)
-        self.after(Constant.App_Setting['refresh-time'].get() * 1000,
+        self.after(Constant.App_Setting.refresh_time.get() * 1000,
                    lambda *args: self.loop.create_task(self.update_status()))
 
     def update_pos(self, configure):
         width = configure.width
         height = configure.height
 
-        self.change_account.place(
-            x=width - 10, y=(height - 40) // 2, anchor=NE)
+        self.change_account.place(x=width - 10, y=(height - 40) // 2, anchor=NE)
 
     def update_account(self):
         self.loop.create_task(self.update_status())
+        logger.debug(Constant.Current_Acc.get())
         self.loop.create_task(
             self.render_acc_infor(Constant.Current_Acc.get()))
 

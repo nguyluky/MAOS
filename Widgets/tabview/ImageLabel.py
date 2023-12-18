@@ -1,7 +1,7 @@
 from PIL import Image
 from customtkinter import *
 
-from widgets.ImageHandel import cropping_image_in_a_rounded_rectangle, async_load_img_from_url, load_img
+from Widgets.ImageHandel import cropping_image_in_a_rounded_rectangle, async_load_img_from_url, load_img
 
 TEST_URL = "https://media.valorant-api.com/bundles/d958b181-4e7b-dc60-7c3c-e3a3a376a8d2/displayicon.png"
 TEST_SKIN = "https://media.valorant-api.com/weaponskinlevels/578e9077-4f88-260c-e54c-b988425c60e4/displayicon.png"

@@ -6,7 +6,7 @@ import numpy as np
 from io import BytesIO
 from PIL import Image, ImageDraw
 
-from helper import get_path
+from Helper.helper import get_path
 
 
 MASK_CIRCULAR = "./assets/img/mask_circular.png"

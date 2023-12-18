@@ -7,10 +7,10 @@ from CTkToolTip import CTkToolTip
 from customtkinter import *
 from CTkMessagebox import CTkMessagebox
 
-from Constant import Constant
+from Helper.Constant import Constant
 from ValLib import EndPoints, ExtraAuth
-from widgets.Structs import TabViewFrame
-from widgets.ImageHandel import load_img
+from Widgets.Structs import TabViewFrame
+from Widgets.ImageHandel import load_img
 
 
 logger = logging.getLogger("main_app")

@@ -1,10 +1,11 @@
 import subprocess
 import psutil
 
-from RiotClientHandel import RiotClientService, find_riot_client
-from widgets.AccInfor import *
-from widgets.TabView import *
-from widgets.Structs import BaseMainFrame
+from asyncio.events import AbstractEventLoop
+from RiotClient import RiotClientService, find_riot_client
+from Widgets.AccInfor import *
+from Widgets.TabView import *
+from Widgets.Structs import BaseMainFrame
 
 CORNER_RADIUS = 20
 
@@ -19,13 +20,13 @@ async def is_game_run():
     return False
 
 
-async def star_game():
+async def star_game(overwrite_setting):
     RiotClientService.kill_RiotClientServices()
     await asyncio.sleep(1)
     # copy setting
     endpoint: EndPoints = Constant.Current_Acc.get()
 
-    if Constant.App_Setting['overwrite-setting'].get():
+    if overwrite_setting:
         logger.debug('overwrite game setting')
         current_acc_setting = await endpoint.Setting.async_Fetch_Preference()
         Constant.Current_Acc_Setting = current_acc_setting
@@ -76,7 +77,7 @@ class Home(BaseMainFrame):
         self.acc_info = AccInfor(home_frame_top, corner_radius=CORNER_RADIUS,
                                  change_account_click=change_account_button_clicked)
         self.acc_info.grid(row=0, column=0, sticky=NSEW,
-                           padx=(10, 0), pady=10)
+                           padx=(10, 0), pady=(0, 10))
 
         # play button
         button_play_font = CTkFont("Consolas", 20, "bold")
@@ -94,10 +95,8 @@ class Home(BaseMainFrame):
     async def handel_play_button(self):
         logger.debug('play button clicked')
         self.hide_main_window()
-        await star_game()
+        await star_game(Constant.App_Setting.overwrite_setting.get())
 
     def show(self):
         super().show()
-        if Constant.Current_Acc.get() is None:
-            Constant.Current_Acc.set(Constant.EndPoints[0])
         self.acc_info.update_account()

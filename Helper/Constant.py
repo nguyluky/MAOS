@@ -1,5 +1,5 @@
-from widgets.Variable import ListVariable, CustomVariable, Setting
-from ValLib import ExtraAuth
+from Widgets.Variable import ListVariable, CustomVariable, Setting
+from ValLib import ExtraAuth, EndPoints
 
 
 class SingletonMeta(type):
