@@ -7,9 +7,9 @@ from customtkinter import *
 from Helper.Constant import Constant
 from ValLib import EndPoints
 
-from Widgets.ImageHandel import async_load_img_from_url
-from Widgets.Structs import TabViewFrame
-from Widgets.Loading import ImageAnimation
+from Helper.ImageHandel import async_load_img_from_url
+from Component.Structs import TabViewFrame
+from Component.Widgets.Loading import ImageAnimation
 
 
 MAP_URL_2_NAME = {

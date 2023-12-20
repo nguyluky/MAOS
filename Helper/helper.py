@@ -1,20 +1,22 @@
-import logging
+import io
 import os
 import sys
 import pickle
 import asyncio
 import json
 import ctypes
+import tkinter
+import urllib.request
+
 import httpx
 
 from ctypes import windll
 from win32com.client import Dispatch
 
-from Widgets.Variable import Setting
+from Component.Variable import Setting
 from ValLib import ExtraAuth, async_login_cookie, EndPoints
 from Helper.Constant import Constant
-from Helper.logger import logger
-
+from Helper.logger import *
 
 # path init
 COOKIE_PATH = os.path.join(os.getenv('LOCALAPPDATA'), "MAOS\\data.d")
@@ -23,6 +25,7 @@ APP_SETTING_PATH = os.path.join(os.getenv('LOCALAPPDATA'), "MAOS\\setting.json")
 PATH_SHORTCUT_START = os.path.join(os.getenv('APPDATA'), "Microsoft\\Windows\\Start Menu\\Programs\\MAOS")
 PATH_SHORTCUT_HOME = os.path.join(os.path.expanduser('~'), 'Desktop')
 MAOS = os.path.join(os.getenv('LOCALAPPDATA'), 'MAOS')
+
 
 def _create_shortcut(path_shortcut, shell, endpoint: ExtraAuth):
     if endpoint.username == '':
@@ -84,7 +87,7 @@ async def load_cookie(auths: ExtraAuth, progress):
             logger.debug(f'start login to {auth.username}')
             self.count += 1
             if self.loading_startup:
-                self.loading_startup.set_progress(self.count / len_)
+                self.loading_startup.set_progress(self.count / (len_*2))
             return auth
 
     loading = HandelCookie(progress)
@@ -94,7 +97,7 @@ async def load_cookie(auths: ExtraAuth, progress):
     accounts = await asyncio.gather(*tasks)
     for acc in accounts:
         Constant.Accounts.append(acc)
-        
+
     for i in Constant.Accounts:
         Constant.EndPoints.append(EndPoints(i))
 
@@ -229,3 +232,31 @@ def load_app_setting(root):
 
     except (FileNotFoundError, json.JSONDecodeError):
         logger.warning('No File Setting')
+
+
+def download_file_from_url(url, save_path, pb_var: tkinter.DoubleVar):
+    resp = urllib.request.urlopen(url)
+    length = resp.getheader('content-length')
+    if length:
+        length = int(length)
+        block_size = max(4096, length // 100)
+    else:
+        block_size = 1000000  # just made something up
+
+    print(length, block_size)
+
+    buf = io.BytesIO()
+    size = 0
+    while True:
+        buf1 = resp.read(block_size)
+        if not buf1:
+            break
+        buf.write(buf1)
+        size += len(buf1)
+        if length:
+            pb_var.set(size / length)
+
+    with open(save_path, "wb+") as file:
+        file.write(buf.getbuffer())
+
+

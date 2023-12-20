@@ -6,9 +6,9 @@ from CTkMessagebox import CTkMessagebox
 
 from ValLib import EndPoints, ExtraAuth
 from Helper.Constant import Constant
-from Widgets.Structs import BaseMainFrame
-from Widgets.ImageHandel import load_img, async_load_img_from_url, cropping_image_in_a_circular
-from Widgets.AccStatus import *
+from Component.Structs import BaseMainFrame
+from Helper.ImageHandel import load_img, async_load_img_from_url, cropping_image_in_a_circular
+from Component.Widgets.AccStatus import *
 from Helper.helper import get_acc_info
 
 AVT_PATH = os.path.join(os.getenv('LOCALAPPDATA'), 'MAOS\\Avt')

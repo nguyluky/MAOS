@@ -3,9 +3,9 @@ import psutil
 
 from asyncio.events import AbstractEventLoop
 from RiotClient import RiotClientService, find_riot_client
-from Widgets.AccInfor import *
-from Widgets.TabView import *
-from Widgets.Structs import BaseMainFrame
+from Component.Widgets.AccInfor import *
+from Component.Widgets.TabView import *
+from Component.Structs import BaseMainFrame
 
 CORNER_RADIUS = 20
 

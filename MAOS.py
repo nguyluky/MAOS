@@ -1,5 +1,3 @@
-import subprocess
-
 from CTkMessagebox import CTkMessagebox
 from customtkinter import *
 from asyncio.events import AbstractEventLoop
@@ -7,11 +5,11 @@ from pystray import Icon, Menu, MenuItem
 
 from Helper.helper import *
 from Helper.Constant import Constant
-from Widgets.Login import Login
-from Widgets.AccountSwitch import AccountSwitch
-from Widgets.Home import Home, star_game, set_to_backup_setting, is_game_run
-from Widgets.Loading import Loading, PROGRESS
-from Widgets.ImageHandel import load_img
+from Component.Widgets.Login import Login
+from Component.Widgets.AccountSwitch import AccountSwitch
+from Component.Widgets.Home import Home, star_game, set_to_backup_setting, is_game_run
+from Component.Widgets.Loading import Loading, PROGRESS
+from Helper.ImageHandel import load_img
 
 run = True
 CORNER_RADIUS = 20
@@ -52,6 +50,7 @@ class App(CTk):
         self.exitFlag = False
         self.loop = loop_
         self.new_version_url = None
+        self.url_update = None
 
         # main frame
         self.frames = {
@@ -82,12 +81,16 @@ class App(CTk):
         logger.debug('load cookie')
         await load_cookie_file(loading_stats)
 
-        if Constant.App_Setting.default_account.get() == "":
-            return
+        for index, endpoint in enumerate(Constant.EndPoints):
+            await get_acc_info(endpoint)
+            loading_stats.set_progress((index + 1) / (len(Constant.EndPoints) * 2) + 0.5)
 
         for endpoint in Constant.EndPoints:
             if endpoint.auth.username == Constant.App_Setting.default_account.get():
                 Constant.Current_Acc.set(endpoint)
+
+        if Constant.Current_Acc.get() is None:
+            Constant.Current_Acc.set(Constant.EndPoints[0])
 
     async def check_update(self):
         url_file = await check_update()
@@ -99,11 +102,11 @@ class App(CTk):
         #     return True
 
         msg = CTkMessagebox(title="Software Update", message="MASO 1.0.4 are releases \n Do you want update",
-                            icon="question", option_1="Update now", option_2="Update when exit", option_3="No")
+                            icon="question", option_1="Update when exit", option_2="No")
         response = msg.get()
         logger.debug(response)
-        if response == "Yes":
-            pass
+        if response == "Update when exit":
+            self.url_update = url_file
 
     async def async_on_quit(self):
         self.on_quit()
@@ -152,6 +155,8 @@ class App(CTk):
 
     def on_quit(self, *args, is_save=True):
         logger.debug(f'quit with args {args}')
+        self.withdraw()
+
         self.exitFlag = True
 
         if is_save:
@@ -166,8 +171,13 @@ class App(CTk):
         accounts = []
         # save account
         for account in Constant.Accounts:
+            account: ExtraAuth
             if account.remember:
+                account.username = ""
+                account.title_id = ""
+                account.card_id = ""
                 accounts.append(account)
+
         with open(COOKIE_PATH, "wb+") as file:
             pickle.dump(accounts, file)
 
@@ -230,7 +240,7 @@ async def check_update():
 
         tag = last_release["tag_name"]
 
-        if tag < VERSION:
+        if tag <= VERSION:
             logger.info("no update")
             return None
 
@@ -238,7 +248,7 @@ async def check_update():
         assets = last_release["assets"]
         url_file = None
         for asset in assets:
-            if asset["name"] == "MAOS.zip":
+            if asset["name"] == "MAOS_install.zip":
                 url_file = asset["browser_download_url"]
 
         return url_file

@@ -9,8 +9,8 @@ from CTkMessagebox import CTkMessagebox
 
 from Helper.Constant import Constant
 from ValLib import EndPoints, ExtraAuth
-from Widgets.Structs import TabViewFrame
-from Widgets.ImageHandel import load_img
+from Component.Structs import TabViewFrame
+from Helper.ImageHandel import load_img
 
 
 logger = logging.getLogger("main_app")

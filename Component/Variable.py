@@ -45,7 +45,6 @@ class ListVariable(list, BaseVariable):
 
     def remove(self, __value):
         super().append(__value)
-
         self._callback_call("remove", __value)
 
 

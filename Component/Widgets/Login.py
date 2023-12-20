@@ -5,11 +5,11 @@ import inspect
 
 from CTkMessagebox import CTkMessagebox
 from ValLib import User
-from Widgets.Loading import *
+from Component.Widgets.Loading import *
 from Helper.Constant import Constant
 from ValLib import authenticate, EndPoints, exceptions
-from Widgets.Structs import BaseMainFrame
-from Widgets.ImageHandel import load_img
+from Component.Structs import BaseMainFrame
+from Helper.ImageHandel import load_img
 
 logger = logging.getLogger("main_app")
 

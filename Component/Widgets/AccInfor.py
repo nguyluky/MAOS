@@ -2,8 +2,8 @@ import asyncio
 import tkinter as tk
 import logging
 
-from Widgets.AccStatus import *
-from Widgets.ImageHandel import *
+from Component.Widgets.AccStatus import *
+from Helper.ImageHandel import *
 from ValLib import EndPoints
 from Helper.Constant import Constant
 from Helper.helper import get_acc_info, check_account_status

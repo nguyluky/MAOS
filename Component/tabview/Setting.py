@@ -2,14 +2,13 @@ import logging
 import tkinter
 import asyncio
 
-from CTkMessagebox import CTkMessagebox
 from customtkinter import *
 
 from ValLib import ExtraAuth
 
 from Helper.Constant import Constant
-from Widgets.Structs import TabViewFrame
-from Widgets.ImageHandel import load_img
+from Component.Structs import TabViewFrame
+from Helper.ImageHandel import load_img
 
 logger = logging.getLogger("main_app")
 
@@ -161,9 +160,6 @@ class Setting(TabViewFrame):
         self.width = 0
 
         self.list_account = []
-        for i in Constant.Accounts:
-            i: ExtraAuth
-            self.list_account.append(i.username)
 
         # setup scrollable
         self.main_frame = CTkScrollableFrame(self, corner_radius=10)
@@ -172,14 +168,6 @@ class Setting(TabViewFrame):
         self.main_frame.grid_columnconfigure(1, weight=3, uniform='a')
 
         self.render_setting()
-        Constant.Accounts.add_callback(self.accout_change)
-
-    def accout_change(self, *args):
-        self.list_account.clear()
-        for i in Constant.Accounts:
-            self.list_account.append(i.username)
-
-        self.default_accout.configure(values=self.list_account)
 
     def render_setting(self):
         self.default_accout = SettingItemDropDownMenu(self.main_frame, "Default account", None, self.list_account,
@@ -221,3 +209,9 @@ class Setting(TabViewFrame):
 
     def show(self):
         super().show()
+        new_list = []
+        for i in Constant.Accounts:
+            i: ExtraAuth
+            new_list.append(i.username)
+        self.list_account = new_list
+        self.default_accout.configure(values=new_list)

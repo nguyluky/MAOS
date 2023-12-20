@@ -1,4 +1,4 @@
-from Widgets.Variable import ListVariable, CustomVariable, Setting
+from Component.Variable import ListVariable, CustomVariable, Setting
 from ValLib import ExtraAuth, EndPoints
 
 

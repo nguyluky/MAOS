@@ -5,8 +5,8 @@ import httpx
 
 from Helper.Constant import Constant
 from ValLib import EndPoints
-from Widgets.Structs import TabViewFrame
-from Widgets.tabview.ImageLabel import *
+from Component.Structs import TabViewFrame
+from Component.tabview.ImageLabel import *
 
 logger = logging.getLogger("main_app")
 

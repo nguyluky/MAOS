@@ -44,7 +44,7 @@ class AccStatus(CTkFrame):
 
     def set_status(self, status: Union[str, Tuple[int, int]]):
 
-        # delete all Widgets
+        # delete all Component
         for widget in self.winfo_children():
             widget.destroy()
 
