@@ -190,7 +190,9 @@ async def get_player_titles(player_title_id):
 
 
 async def get_acc_info(pvp: EndPoints):
-    # find index of auth in account list
+    # find index of auth in account list\
+    if pvp is None:
+        return
     index = -1
     for i, ele in enumerate(Constant.Accounts):
         if ele == pvp.auth:

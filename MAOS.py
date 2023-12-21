@@ -1,3 +1,6 @@
+
+from ctypes import windll, byref, sizeof, c_int
+
 from CTkMessagebox import CTkMessagebox
 from customtkinter import *
 from asyncio.events import AbstractEventLoop
@@ -10,12 +13,18 @@ from Component.Widgets.AccountSwitch import AccountSwitch
 from Component.Widgets.Home import Home, star_game, set_to_backup_setting, is_game_run
 from Component.Widgets.Loading import Loading, PROGRESS
 from Helper.ImageHandel import load_img
+from Component.Popup.Update import Update
 
 run = True
 CORNER_RADIUS = 20
 VERSION = "1.0.4"
 
 logger = logging.getLogger("main_app")
+
+
+async def _get_accout_info(index, endpoint, loading_stats):
+    await get_acc_info(endpoint)
+    loading_stats.set_progress((index + 1) / (len(Constant.EndPoints) * 2) + 0.5)
 
 
 class App(CTk):
@@ -36,6 +45,15 @@ class App(CTk):
         self.iconbitmap(icon)
         set_appearance_mode("Dark")
         set_default_color_theme("blue")
+
+        HWND = windll.user32.GetParent(self .winfo_id())
+        color = 0x20202000
+        windll.dwmapi.DwmSetWindowAttribute(
+            HWND,
+            35,
+            byref(c_int(color)),
+            sizeof(c_int)
+        )
 
         # icon_tray
         self.icon_tray = Icon("MAOS", load_img(r'assets\icons\icon.ico'), "MAOS", Menu(
@@ -77,13 +95,16 @@ class App(CTk):
         loading_stats.set_text("check update")
         await self.check_update()
 
+        Update()
+
         loading_stats.set_text("loading cookie")
         logger.debug('load cookie')
         await load_cookie_file(loading_stats)
 
-        for index, endpoint in enumerate(Constant.EndPoints):
-            await get_acc_info(endpoint)
-            loading_stats.set_progress((index + 1) / (len(Constant.EndPoints) * 2) + 0.5)
+        loading_stats.set_text("get infor account")
+        task = [_get_accout_info(index, endpoint, loading_stats) for index, endpoint in enumerate(Constant.EndPoints)]
+
+        await asyncio.gather(*task)
 
         for endpoint in Constant.EndPoints:
             if endpoint.auth.username == Constant.App_Setting.default_account.get():
@@ -96,10 +117,6 @@ class App(CTk):
         url_file = await check_update()
         if url_file is None:
             return
-
-        # if not getattr(sys, 'frozen', False):
-        #     logger.debug(f"new update {url_file}")
-        #     return True
 
         msg = CTkMessagebox(title="Software Update", message="MASO 1.0.4 are releases \n Do you want update",
                             icon="question", option_1="Update when exit", option_2="No")
