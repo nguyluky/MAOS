@@ -25,7 +25,7 @@ APP_SETTING_PATH = os.path.join(os.getenv('LOCALAPPDATA'), "MAOS\\setting.json")
 PATH_SHORTCUT_START = os.path.join(os.getenv('APPDATA'), "Microsoft\\Windows\\Start Menu\\Programs\\MAOS")
 PATH_SHORTCUT_HOME = os.path.join(os.path.expanduser('~'), 'Desktop')
 MAOS = os.path.join(os.getenv('LOCALAPPDATA'), 'MAOS')
-
+TEMP_PATH = os.path.join(os.getenv('LOCALAPPDATA'), 'Temp')
 
 def _create_shortcut(path_shortcut, shell, endpoint: ExtraAuth):
     if endpoint.username == '':

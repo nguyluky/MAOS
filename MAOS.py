@@ -1,6 +1,7 @@
 
 from ctypes import windll, byref, sizeof, c_int
 
+import httpx
 from CTkMessagebox import CTkMessagebox
 from customtkinter import *
 from asyncio.events import AbstractEventLoop
@@ -17,7 +18,8 @@ from Component.Popup.Update import Update
 
 run = True
 CORNER_RADIUS = 20
-VERSION = "1.0.4"
+VERSION = "1.0.5"
+url_update = None
 
 logger = logging.getLogger("main_app")
 
@@ -68,7 +70,7 @@ class App(CTk):
         self.exitFlag = False
         self.loop = loop_
         self.new_version_url = None
-        self.url_update = None
+        self.topWindow = None
 
         # main frame
         self.frames = {
@@ -93,9 +95,13 @@ class App(CTk):
         loading_stats.show()
 
         loading_stats.set_text("check update")
-        await self.check_update()
-
-        Update()
+        try:
+            await self.check_update()
+            # pass
+        except httpx.ConnectError:
+            loading_stats.set_text("no have internet pr restart app")
+            return
+        # Update()
 
         loading_stats.set_text("loading cookie")
         logger.debug('load cookie')
@@ -113,17 +119,19 @@ class App(CTk):
         if Constant.Current_Acc.get() is None:
             Constant.Current_Acc.set(Constant.EndPoints[0])
 
-    async def check_update(self):
-        url_file = await check_update()
+    @staticmethod
+    async def check_update():
+        global url_update
+        url_file, mess = await check_update()
         if url_file is None:
             return
 
-        msg = CTkMessagebox(title="Software Update", message="MASO 1.0.4 are releases \n Do you want update",
+        msg = CTkMessagebox(title="Software Update", message=f"MASO have new releases \n {mess}",
                             icon="question", option_1="Update when exit", option_2="No")
         response = msg.get()
         logger.debug(response)
         if response == "Update when exit":
-            self.url_update = url_file
+            url_update = url_file
 
     async def async_on_quit(self):
         self.on_quit()
@@ -249,26 +257,21 @@ class MainApp:
         self.window = App((810, 450), "MAOS", icon_path, loop_)
         await self.window.show()
 
+        if url_update is not None:
+            self.update = Update(url_update)
+            await self.update.show()
+
 
 async def check_update():
     async with httpx.AsyncClient() as client:
-        data = await client.get("https://api.github.com/repos/nguyluky/MAOS/releases")
-        last_release = data.json()[0]
+        resp = await client.get("https://raw.githubusercontent.com/nguyluky/MAOS/main/Update.json")
+        data = resp.json()
+        a = sum([int(i) for i in VERSION.split(".")])
+        b = sum([int(i) for i in data.get("version", "0.0.0").split('.')])
+        if a < b:
+            return data.get("url", None), data.get('mess', '')
 
-        tag = last_release["tag_name"]
-
-        if tag <= VERSION:
-            logger.info("no update")
-            return None
-
-        logger.info(f"new update {tag}")
-        assets = last_release["assets"]
-        url_file = None
-        for asset in assets:
-            if asset["name"] == "MAOS_install.zip":
-                url_file = asset["browser_download_url"]
-
-        return url_file
+        return None, None
 
 
 async def run_without_gui(player_uuid):
